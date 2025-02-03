@@ -1,0 +1,15 @@
+---
+title: "Exploratory Analysis"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Purpose
+
+This file will be used for exploratory analysis: checking proportional odds assumption, evaluating the spread and distribution of the data
+
