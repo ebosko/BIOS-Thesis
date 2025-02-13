@@ -9,7 +9,505 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(tidyverse)
+library(readxl)
+library(ordinal)
+library(ggplot2)
+```
+
 ## Purpose
 
-This file will be used for exploratory analysis: checking proportional odds assumption, evaluating the spread and distribution of the data
+This file will be used for exploratory analysis: evaluating the spread and distribution of the data
 
+## Reading in Data
+
+### Tree-in-bud
+
+```{r}
+# Read in each rater's sheet
+vh_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.TIB.Long") %>% 
+  mutate(rater = "VH")
+
+jw_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.TIB.Long") %>% 
+  mutate(rater = "JW")
+
+tib <- bind_rows(vh_tib, jw_tib)
+```
+
+### Large Nodules
+
+```{r}
+# Read in each rater's sheet
+vh_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.LN.Long") %>% 
+  mutate(rater = "VH")
+
+jw_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.LN.Long") %>% 
+  mutate(rater = "JW")
+
+ln <- bind_rows(vh_ln, jw_ln)
+```
+
+### Ground-glass Opacities
+
+```{r}
+# Read in each rater's sheet
+vh_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.GGO.Long") %>% 
+  mutate(rater = "VH")
+
+jw_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.GGO.Long") %>% 
+  mutate(rater = "JW")
+
+ggo <- bind_rows(vh_ggo, jw_ggo)
+```
+
+### Consolidations
+
+```{r}
+# Read in each rater's sheet
+vh_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.CONS.Long") %>% 
+  mutate(rater = "VH")
+
+jw_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.CONS.Long") %>% 
+  mutate(rater = "JW")
+
+cons <- bind_rows(vh_cons, jw_cons)
+```
+
+### Bronchiectasis
+
+```{r}
+# Read in each rater's sheet
+vh_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.BRONCH.Long") %>% 
+  mutate(rater = "VH")
+
+jw_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.BRONCH.Long") %>% 
+  mutate(rater = "JW")
+
+bronch <- bind_rows(vh_bronch, jw_bronch)
+```
+
+### Atelectasis
+
+```{r}
+# Read in each rater's sheet
+vh_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.ATEL.Long") %>% 
+  mutate(rater = "VH")
+
+jw_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.ATEL.Long") %>% 
+  mutate(rater = "JW")
+
+atel <- bind_rows(vh_atel, jw_atel)
+```
+
+### Thin-wall Cavity
+
+```{r}
+# Read in each rater's sheet
+vh_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thin.Long") %>% 
+  mutate(rater = "VH")
+
+jw_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thin.Long") %>% 
+  mutate(rater = "JW")
+
+thin <- bind_rows(vh_thin, jw_thin)
+```
+
+### Thick-wall Cavity
+
+```{r}
+# Read in each rater's sheet
+vh_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thick.Long") %>% 
+  mutate(rater = "VH")
+
+jw_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thick.Long") %>% 
+  mutate(rater = "JW")
+
+thick <- bind_rows(vh_thick, jw_thick)
+```
+
+## Visualize the Distribution of Scores
+
+### Tree-in-bud
+
+```{r}
+#by rating 
+tib %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(tib, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Tree-in-bud Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+tib %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+tib %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s TIB Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+tib %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s TIB Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Large Nodules - See "Questions for Ed" file for discrepancy with VH's "3" rating
+
+```{r}
+#by rating 
+ln %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(ln, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Large Nodule Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+ln %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ln %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s LN Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+ln %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s LN Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Ground-glass Opacities - See "Questions for Ed" file for discrepancy with JW's "10" rating
+
+```{r}
+#by rating 
+ggo %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(ggo, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Ground Glass Opacity Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+ggo %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggo %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s GGO Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+ggo %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s GGO Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Consolidations
+
+```{r}
+#by rating 
+cons %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(cons, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Consolidation Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+cons %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+cons %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s Consolidation Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+cons %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s Consolidation Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Bronchiectasis
+
+```{r}
+#by rating 
+bronch %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(bronch, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Bronchiectasis Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+bronch %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+bronch %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s Bronchiectasis Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+bronch %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s Bronchiectasis Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Atelectasis
+
+```{r}
+#by rating 
+atel %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(atel, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Atelectasis Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+atel %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+atel %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s Atelectasis Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+atel %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s Atelectasis Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Thin Wall Cavity
+
+```{r}
+#by rating 
+thin %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(thin, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Thin Wall Cavity Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+thin %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+thin %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s Thin Wall Cavity Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+thin %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s Thin Wall Cavity Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
+
+### Thick Wall Cavity
+
+```{r}
+#by rating 
+thick %>%
+  group_by(rater, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(thick, aes(x=factor(Value), fill=rater)) +
+  geom_bar(position = 'dodge') +
+  labs(title = 'Distribution of Thick Wall Cavity Ratings',
+       x='Rating',
+       y ='Count')
+
+#by lobe
+thick %>%
+  group_by(Attribute, Value) %>%
+  summarize(n=n()) %>%
+  mutate(prop = n / sum(n))
+
+thick %>%
+  filter(rater == 'JW') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of JW\'s Thick Wall Cavity Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+
+thick %>%
+  filter(rater == 'VH') %>%
+  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  geom_bar(position = 'stack') + 
+  labs(
+    title = 'Distribution of VH\'s Thick Wall Cavity Ratings by Lobe',
+    x='Lobe',
+    y='Count',
+    fill='Rating'
+  ) +
+  theme_minimal()
+```
