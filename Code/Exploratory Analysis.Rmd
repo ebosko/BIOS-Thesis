@@ -12,13 +12,15 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(readxl)
-library(ordinal)
+library(MASS)
 library(ggplot2)
+library(brant)
+library(emmeans)
 ```
 
 ## Purpose
 
-This file will be used for exploratory analysis: evaluating the spread and distribution of the data
+This file will be used for exploratory analysis: evaluating the spread and distribution of the data, checking proportional odds assumption of simple models without random effects
 
 ## Reading in Data
 
@@ -511,3 +513,315 @@ thick %>%
   ) +
   theme_minimal()
 ```
+
+## Simple Models without Random Effects
+
+### Tree-in-bud
+
+```{r}
+tib_jw <- subset(tib, rater == "JW")
+
+#convert Value to an ordered factor (0 < 1 < 2 < 3)
+tib_jw$Value <- ordered(tib_jw$Value, levels = c(0,1,2,3))
+
+tib_jw$Attribute <- factor(tib_jw$Attribute, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit simple PO model, ignoring REs
+tib_polr <- polr(
+  Value ~ Attribute, 
+  data = tib_jw, 
+  method = "logistic", 
+  Hess = TRUE
+)
+
+#look at summary of results
+summary(tib_polr)
+
+#check the proportional odds assumption with the brant test
+brant(tib_polr)
+
+#set up contrasts to compare lobes
+tib_emm <- emmeans(tib_polr, ~ Attribute)
+tib_emm
+pairs(tib_emm)
+```
+
+Proportional odds not violated
+
+Significant differences:
+LUS vs all other lobes
+*RUL - LUS: OR = 2.95 => RUL's odds of disease are 2.95 times that of LUS
+*RML - LUS: OR = 2.69 => RML's odds of disease are 2.69 times that of LUS
+*RLL - LUS: OR = 3.45 => RLL's odds of disease are 3.45 times that of LUS
+*LLS - LUS: OR = 2.22 => LLS's odds are 2.22 times that of LUS
+*LLL - LUS: OR = 3.02 => LLL's odds are 3 times that of LUS
+
+### Large Nodules
+
+```{r}
+#subset data for rater JW
+ln_jw <- subset(ln, rater == "JW")
+
+#ensure Value is a factor with levels 0 and 1
+ln_jw$Value <- factor(ln_jw$Value, levels = c(0,1))
+
+#make Attribute a factor in the desired order
+ln_jw$Attribute <- factor(ln_jw$Attribute, 
+                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit a standard logistic regression model (binary) 
+ln_glm <- glm(Value ~ Attribute, 
+                 data = ln_jw, 
+                 family = binomial(link = "logit"))
+
+#look at model summary 
+summary(ln_glm)
+
+#obtain estimated means (probabilities of Value=1 by lobe)
+ln_emm <- emmeans(ln_glm, ~ Attribute, type = "response")
+
+#see the pairwise comparisons
+pairs(ln_emm)
+```
+
+Significant findings:
+*RML - LLL: OR = 0.25 => RML's odds of disease is 0.25 times that of LLL
+*LUS - LLL: OR = 0.28 => LUS's odds of disease is 0.28 times that of LLL
+*LLS - LLL: OR = 0.31 => LLS's odds of disease is 0.31 times that of LLL
+
+Borderline significant findings:
+*RUL - RML: OR = 3.11 => RUL's odds of disease is 3.11 times that of RML
+*RML - RLL: OR = 0.32 => RML's odds of disease is 0.32 times that of RLL
+
+### Ground-glass Opacities
+
+```{r}
+ggo_jw <- subset(ggo, rater == "JW")
+
+#convert Value to an ordered factor (0 < 1 < 2 < 3)
+ggo_jw$Value <- ordered(ggo_jw$Value, levels = c(0,1,2,3))
+
+ggo_jw$Attribute <- factor(ggo_jw$Attribute, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit simple PO model, ignoring REs
+ggo_polr <- polr(
+  Value ~ Attribute, 
+  data = ggo_jw, 
+  method = "logistic", 
+  Hess = TRUE
+)
+
+#look at summary of results
+summary(ggo_polr)
+
+#check the proportional odds assumption with the brant test
+brant(ggo_polr)
+
+#set up contrasts to compare lobes
+ggo_emm <- emmeans(ggo_polr, ~ Attribute)
+ggo_emm
+pairs(ggo_emm)
+```
+
+Proportional odds not violated
+
+No significant differences between lobes
+
+### Consolidations
+
+```{r}
+cons_jw <- subset(cons, rater == "JW")
+
+#convert Value to an ordered factor (0 < 1 < 2 < 3)
+cons_jw$Value <- ordered(cons_jw$Value, levels = c(0,1,2,3))
+
+cons_jw$Attribute <- factor(cons_jw$Attribute, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit simple PO model, ignoring REs
+cons_polr <- polr(
+  Value ~ Attribute, 
+  data = cons_jw, 
+  method = "logistic", 
+  Hess = TRUE
+)
+
+#look at summary of results
+summary(cons_polr)
+
+#check the proportional odds assumption with the brant test
+brant(cons_polr)
+
+#set up contrasts to compare lobes
+cons_emm <- emmeans(cons_polr, ~ Attribute)
+cons_emm
+pairs(cons_emm)
+```
+
+Proportional odds assumption not violated
+
+Significant findings:
+*RUL - LUS: OR = 3.62 => RUL's odds of disease are 3.62 times that of LUS
+*RML - LUS: OR = 3.14 => RML's odds of disease are 3.14 times that of LUS
+*RLL - LUS: OR = 2.27 => RLL's odds of disease are 2.27 times that of LUS
+*LLS - LUS: OR = 3.14 => LLS's odds of disease are 3.14 times that of LUS
+
+Borderline significant: 
+*RUL - LLL: OR = 1.9 => RUL's odds of disease are 1.9 times that of LLL
+
+### Bronchiectasis
+
+```{r}
+bronch_jw <- subset(bronch, rater == "JW")
+
+#convert Value to an ordered factor (0 < 1 < 2 < 3)
+bronch_jw$Value <- ordered(bronch_jw$Value, levels = c(0,1,2,3))
+
+bronch_jw$Attribute <- factor(bronch_jw$Attribute, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit simple PO model, ignoring REs
+bronch_polr <- polr(
+  Value ~ Attribute, 
+  data = bronch_jw, 
+  method = "logistic", 
+  Hess = TRUE
+)
+
+#look at summary of results
+summary(bronch_polr)
+
+#check the proportional odds assumption with the brant test
+brant(bronch_polr)
+
+#set up contrasts to compare lobes
+bronch_emm <- emmeans(bronch_polr, ~ Attribute)
+bronch_emm
+pairs(bronch_emm)
+```
+
+Proportional odds assumption violated at model-level (RML may be different across thresholds)
+
+Significant findings:
+*RUL - RML: OR = 0.39 => RUL's odds of disease are 0.39 times that of RML
+*RUL - LUS: OR = 3.77 => RUL's odds of disease are 3.77 times that of LUS
+*RUL - LLL: OR = 1.87 => RUL's odds of disease are 1.87 times that of LLL
+*RML - RLL: OR = 3.16 => RML's odds of disease are 3.16 times that of RLL
+*RML - LUS: OR = 9.54 => RML's odds of disease are 9.54 times that of LUS
+*RML - LLL: OR = 4.75 => RML's odds of disease are 4.75 times that of LLL
+*RLL - LUS: OR = 3.02 => RLL's odds of disease are 3.02 times that of LUS
+*RLL - LLS: OR = 0.53 => RLL's odds of disease are 0.53 times that of LLS
+*LUS - LLS: OR = 0.18 => LUS's odds of disease are 0.18 times that of LLS
+*LUS - LLL: OR = 0.5 => LUS's odds of disease are about half of that of LLL
+*LLS - LLL: OR = 2.83 => LLS's odds of disease are 2.83 times that of LLL
+
+### Atelectasis
+
+```{r}
+atel_jw <- subset(atel, rater == "JW")
+
+#convert Value to an ordered factor (0 < 1 < 2 < 3)
+atel_jw$Value <- ordered(atel_jw$Value, levels = c(0,1,2,3))
+
+atel_jw$Attribute <- factor(atel_jw$Attribute, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit simple PO model, ignoring REs
+atel_polr <- polr(
+  Value ~ Attribute, 
+  data = atel_jw, 
+  method = "logistic", 
+  Hess = TRUE
+)
+
+#look at summary of results
+summary(atel_polr)
+
+#check the proportional odds assumption with the brant test
+brant(atel_polr)
+
+#set up contrasts to compare lobes
+atel_emm <- emmeans(atel_polr, ~ Attribute)
+atel_emm
+pairs(atel_emm)
+```
+
+Proportional odds assumption holds
+
+Significant findings:
+*RUL - RML: OR = 0.22 => RUL's odds of disease are 0.22 times that of RML
+*RUL - LUS: OR = 2.96 => RUL's odds of disease are 2.96 times that of LUS
+*RUL - LLS: OR = 0.3 => RUL's odds of disease are 0.3 times that of LLS
+*RML - RLL: OR = 11.46 => RML's odds of disease are 11.46 times that of RLL
+*RML - LUS: OR = 13.43 => RML's odds of disease are 13.43 times that of LUS
+*RML - LLL: OR = 10.59 => RML's odds of disease are 10.59 times that of LLL
+*RLL - LLS: OR = 0.12 => RLL's odds of disease are 0.12 times that of LLS
+*LUS - LLS: OR = 0.1 => LUS's odds of disease are 0.1 times that of LLS
+*LLS - LLL: OR = 7.68 => LLS's odds of disease are 7.68 times that of LLL
+
+### Thin Wall Cavity
+
+```{r}
+#subset data for rater JW
+thin_jw <- subset(thin, rater == "JW")
+
+#ensure Value is a factor with levels 0 and 1
+thin_jw$Value <- factor(thin_jw$Value, levels = c(0,1))
+
+#make Attribute a factor in the desired order
+thin_jw$Attribute <- factor(thin_jw$Attribute, 
+                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit a standard logistic regression model (binary) 
+thin_glm <- glm(Value ~ Attribute, 
+                 data = thin_jw, 
+                 family = binomial(link = "logit"))
+
+#look at model summary 
+summary(thin_glm)
+
+#obtain estimated means (probabilities of Value=1 by lobe)
+thin_emm <- emmeans(thin_glm, ~ Attribute, type = "response")
+
+#see the pairwise comparisons
+pairs(thin_emm)
+```
+
+Lobes do not significantly differ
+
+
+### Thick Wall Cavity
+
+```{r}
+#subset data for rater JW
+thick_jw <- subset(thick, rater == "JW")
+
+#ensure Value is a factor with levels 0 and 1
+thick_jw$Value <- factor(thick_jw$Value, levels = c(0,1))
+
+#make Attribute a factor in the desired order
+thick_jw$Attribute <- factor(thick_jw$Attribute, 
+                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+
+#fit a standard logistic regression model (binary) 
+thick_glm <- glm(Value ~ Attribute, 
+                 data = thick_jw, 
+                 family = binomial(link = "logit"))
+
+#look at model summary 
+summary(thick_glm)
+
+#obtain estimated means (probabilities of Value=1 by lobe)
+thick_emm <- emmeans(thick_glm, ~ Attribute, type = "response")
+
+#see the pairwise comparisons
+pairs(thick_emm)
+```
+
+Significant findings:
+*RUL - RML: OR = 10.62 => RUL's odds of disease are 10.62 times that of RML
+*RUL - LUS: OR = 3.85 => RUL's odds of disease are 3.85 times that of LUS
+*RUL - LLS: OR = 7.91 => RUL's odds of disease are 7.91 times that of LLS
+*RUL - LLL: OR = 4.43 =>  RUL's odds of diseasea re 4.43 times that of LLL
