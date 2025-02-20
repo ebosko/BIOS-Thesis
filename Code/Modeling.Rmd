@@ -1,0 +1,200 @@
+---
+title: "Models"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(emmeans)
+library(ordinal)
+library(nlme)
+library(glmmTMB)
+library(brms)
+library(mvord)
+```
+
+## Purpose
+
+This file will be used to compare different models for each CT feature
+
+## Reading in Data
+
+### Tree-in-bud
+
+```{r}
+# Read in each rater's sheet
+vh_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.TIB.Long") %>% 
+  mutate(rater = "VH")
+
+jw_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.TIB.Long") %>% 
+  mutate(rater = "JW")
+
+tib <- bind_rows(vh_tib, jw_tib)
+```
+
+### Large Nodules
+
+```{r}
+# Read in each rater's sheet
+vh_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.LN.Long") %>% 
+  mutate(rater = "VH")
+
+jw_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.LN.Long") %>% 
+  mutate(rater = "JW")
+
+ln <- bind_rows(vh_ln, jw_ln)
+```
+
+### Ground-glass Opacities
+
+```{r}
+# Read in each rater's sheet
+vh_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.GGO.Long") %>% 
+  mutate(rater = "VH")
+
+jw_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.GGO.Long") %>% 
+  mutate(rater = "JW")
+
+ggo <- bind_rows(vh_ggo, jw_ggo)
+```
+
+### Consolidations
+
+```{r}
+# Read in each rater's sheet
+vh_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.CONS.Long") %>% 
+  mutate(rater = "VH")
+
+jw_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.CONS.Long") %>% 
+  mutate(rater = "JW")
+
+cons <- bind_rows(vh_cons, jw_cons)
+```
+
+### Bronchiectasis
+
+```{r}
+# Read in each rater's sheet
+vh_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.BRONCH.Long") %>% 
+  mutate(rater = "VH")
+
+jw_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.BRONCH.Long") %>% 
+  mutate(rater = "JW")
+
+bronch <- bind_rows(vh_bronch, jw_bronch)
+```
+
+### Atelectasis
+
+```{r}
+# Read in each rater's sheet
+vh_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.ATEL.Long") %>% 
+  mutate(rater = "VH")
+
+jw_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.ATEL.Long") %>% 
+  mutate(rater = "JW")
+
+atel <- bind_rows(vh_atel, jw_atel)
+```
+
+### Thin-wall Cavity
+
+```{r}
+# Read in each rater's sheet
+vh_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thin.Long") %>% 
+  mutate(rater = "VH")
+
+jw_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thin.Long") %>% 
+  mutate(rater = "JW")
+
+thin <- bind_rows(vh_thin, jw_thin)
+```
+
+### Thick-wall Cavity
+
+```{r}
+# Read in each rater's sheet
+vh_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thick.Long") %>% 
+  mutate(rater = "VH")
+
+jw_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thick.Long") %>% 
+  mutate(rater = "JW")
+
+thick <- bind_rows(vh_thick, jw_thick)
+```
+
+## Models
+
+### Tree-in-bud
+
+```{r}
+#make sure everything is in correct format
+tib$Value <- ordered(tib$Value, levels = c(0,1,2,3))
+tib$newID <- factor(tib$newID)
+tib$rater <- factor(tib$rater)
+
+#model 1 - rater as FE and random int
+tib_mod1 <- clmm(
+  Value ~ rater + (1 | newID),
+  data = tib
+)
+
+summary(tib_mod1)
+
+#model 2 - lobe and rater as FEs and random int
+tib_mod2 <- clmm(
+  Value ~ Attribute + rater + (1 | newID),
+  data = tib
+)
+
+AIC(tib_mod1, tib_mod2)
+```
+
+```{r}
+#model 3 - lobe and rater as FE, random int, and AR(1) correlation structure
+
+
+# Fit the model using glmmTMB
+tib_mod3 <- glmmTMB(Value ~ Attribute + rater + cs(1 | newID), data=tib, dispformula=~0)
+
+```
+
+```{r}
+AIC(tib_mod2, tib_mod3)
+```
+
+```{r}
+# Fit the model using brms
+tib_mod3 <- brm(
+  bf(Value ~ Attribute + rater + (1 | newID), 
+     autocor = cor_ar(~ 1 | newID, p = 1)
+  ),
+  data    = tib,
+  family  = cumulative("logit"),
+  chains  = 2, iter = 2000
+)
+
+summary(tib_mod3)
+```
+
+```{r}
+#model 2 - lobe and rater as FEs and random int
+tib_mod3 <- glmmTMB(
+  Value ~ Attribute + rater + (1 | newID) + us(1|Attribute),
+  data = tib
+)
+
+AIC(tib_mod2, tib_mod3)
+```
+
+```{r}
+summary(tib_mod3)
+```
