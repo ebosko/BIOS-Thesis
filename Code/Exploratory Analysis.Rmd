@@ -514,7 +514,7 @@ thick %>%
   theme_minimal()
 ```
 
-## Simple Models without Random Effects
+## Simple Models without Random Effects; Lobe as only Fixed Effect
 
 ### Tree-in-bud
 

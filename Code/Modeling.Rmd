@@ -18,7 +18,9 @@ library(ordinal)
 library(nlme)
 library(glmmTMB)
 library(brms)
-library(mvord)
+library(multgee)
+library(lme4)
+library(geepack)
 ```
 
 ## Purpose
@@ -138,63 +140,656 @@ thick <- bind_rows(vh_thick, jw_thick)
 ```{r}
 #make sure everything is in correct format
 tib$Value <- ordered(tib$Value, levels = c(0,1,2,3))
+tib$Attribute <- factor(tib$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 tib$newID <- factor(tib$newID)
 tib$rater <- factor(tib$rater)
 
-#model 1 - rater as FE and random int
+#model 1 - lobe and rater as fixed effects and random int
 tib_mod1 <- clmm(
-  Value ~ rater + (1 | newID),
-  data = tib
-)
-
-summary(tib_mod1)
-
-#model 2 - lobe and rater as FEs and random int
-tib_mod2 <- clmm(
   Value ~ Attribute + rater + (1 | newID),
   data = tib
 )
 
-AIC(tib_mod1, tib_mod2)
+summary(tib_mod1)
 ```
 
 ```{r}
-#model 3 - lobe and rater as FE, random int, and AR(1) correlation structure
-
-
-# Fit the model using glmmTMB
-tib_mod3 <- glmmTMB(Value ~ Attribute + rater + cs(1 | newID), data=tib, dispformula=~0)
-
-```
-
-```{r}
-AIC(tib_mod2, tib_mod3)
-```
-
-```{r}
-# Fit the model using brms
-tib_mod3 <- brm(
-  bf(Value ~ Attribute + rater + (1 | newID), 
-     autocor = cor_ar(~ 1 | newID, p = 1)
-  ),
-  data    = tib,
-  family  = cumulative("logit"),
-  chains  = 2, iter = 2000
-)
-
-summary(tib_mod3)
-```
-
-```{r}
-#model 2 - lobe and rater as FEs and random int
-tib_mod3 <- glmmTMB(
-  Value ~ Attribute + rater + (1 | newID) + us(1|Attribute),
+#model 2 - lobe as fixed effect, rater as random effect and random int
+tib_mod2 <- clmm(
+  Value ~ Attribute + (1 | newID) + (1 | rater),
   data = tib
 )
 
-AIC(tib_mod2, tib_mod3)
+summary(tib_mod2)
+```
+
+Error fitting above model: less than 3 levels for rater
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+tib_mod3 <- clmm(
+  Value ~ Attribute + rater + (1 + Attribute | newID),
+  data = tib,
+  control = list(maxIter = 10000)
+)
+
+summary(tib_mod3)
+```
+
+Error fitting above model: failed to converge
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+tib_mod4 <- clmm(
+  Value ~ Attribute*rater + (1 | newID),
+  data = tib
+)
+
+summary(tib_mod4)
 ```
 
 ```{r}
-summary(tib_mod3)
+AIC(tib_mod1, tib_mod4)
+```
+
+```{r}
+#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
+tib$timeIndex <- as.numeric(factor(tib$Attribute, 
+                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
+
+tib_mod5 <- ordLORgee(
+  formula = Value ~ Attribute + rater,
+  id      = newID,
+  data    = tib,
+  LORstr  = "time.exch",
+  link    = "logit"
+)
+
+summary(tib_mod5)
+```
+
+```{r}
+#model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
+#fixed-effect model with the proportional odds assumption
+tib_mod6 <- clm(Value ~ Attribute + rater, data = tib, link = "logit")
+
+#fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
+tib_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = tib, link = "logit")
+
+anova(tib_mod6, tib_mod7)
+```
+
+Proportional odds assumption not met
+
+```{r}
+#model 8 - bayesian approach to relax proportional odds assumption while including random effects
+#define priors using our frequentist estimates:
+priors <- c(
+  set_prior("normal(0.2234, 1)", class = "b", coef = "AttributeRML"),
+  set_prior("normal(0.5813, 1)", class = "b", coef = "AttributeRLL"),
+  set_prior("normal(-1.2542, 1)", class = "b", coef = "AttributeLUS"),
+  set_prior("normal(-0.2069, 1)", class = "b", coef = "AttributeLLS"),
+  set_prior("normal(0.3660, 1)", class = "b", coef = "AttributeLLL"),
+  set_prior("normal(0.5376, 0.5)", class = "b", coef = "raterVH"),
+  set_prior("normal(-1.6399, 1)", class = "Intercept"),
+  # For the random intercept for subjects (newID), a wider prior:
+  set_prior("student_t(3, 0, 5)", class = "sd", group = "newID")
+)
+
+#fit the partial proportional odds model with the cs() function on Attribute
+tib_mod8 <- brm(
+  bf(Value ~ cs(Attribute) + rater + (1 | newID)),
+  data   = tib,
+  family = cumulative("logit", threshold = "flexible"),
+  prior  = priors,
+  chains = 4,
+  iter   = 4000,
+  warmup = 2000,
+  seed   = 123
+)
+
+summary(tib_mod8)
+
+```
+
+
+
+### Large Nodules
+
+```{r}
+#make sure everything is in correct format
+ln$Value <- as.numeric(as.character(ln$Value))
+ln$Attribute <- factor(ln$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+ln$newID <- factor(ln$newID)
+ln$rater <- factor(ln$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+ln_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+                data = ln,
+                family = binomial(link = "logit"))
+summary(ln_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+ln_mod2 <- glmer(Value ~ Attribute + (1 | newID) + (1 | rater),
+                data = ln,
+                family = binomial(link = "logit"))
+summary(ln_mod2)
+```
+
+Singular fit: random effect of rater is negligible (?)
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+ln_mod3 <- glmer(Value ~ Attribute + rater + (1 + Attribute | newID),
+                data = ln,
+                family = binomial(link = "logit"),
+                control = glmerControl(optimizer = "bobyqa"))
+summary(ln_mod3)
+```
+
+Model failed to converge
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+ln_mod4 <- glmer(Value ~ Attribute * rater + (1 | newID),
+                data = ln,
+                family = binomial(link = "logit"),
+                control = glmerControl(optimizer = "bobyqa"))
+summary(ln_mod4)
+```
+
+```{r}
+#model 5 - 
+ln_mod5 <- geeglm(Value ~ Attribute + rater,
+                        id = newID,       # cluster identifier
+                        data = ln,
+                        family = binomial(link = "logit"),
+                        corstr = "ar1")
+summary(ln_mod5)
+```
+
+```{r}
+AIC(ln_mod1, ln_mod2, ln_mod3, ln_mod4)
+```
+
+### Ground-glass Opacities
+
+```{r}
+#make sure everything is in correct format
+ggo$Value <- ordered(ggo$Value, levels = c(0,1,2,3))
+ggo$Attribute <- factor(ggo$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+ggo$newID <- factor(ggo$newID)
+ggo$rater <- factor(ggo$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+ggo_mod1 <- clmm(
+  Value ~ Attribute + rater + (1 | newID),
+  data = ggo
+)
+
+summary(ggo_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+ggo_mod2 <- clmm(
+  Value ~ Attribute + (1 | newID) + (1 | rater),
+  data = ggo
+)
+
+summary(ggo_mod2)
+```
+
+Error fitting above model: less than 3 levels for rater
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+ggo_mod3 <- clmm(
+  Value ~ Attribute + rater + (1 + Attribute | newID),
+  data = ggo,
+  control = list(maxIter = 10000)
+)
+
+summary(ggo_mod3)
+```
+
+Error fitting above model: failed to converge
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+ggo_mod4 <- clmm(
+  Value ~ Attribute*rater + (1 | newID),
+  data = ggo
+)
+
+summary(ggo_mod4)
+```
+
+```{r}
+AIC(ggo_mod1, ggo_mod4)
+```
+
+```{r}
+#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
+ggo$timeIndex <- as.numeric(factor(ggo$Attribute, 
+                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
+
+ggo_mod5 <- ordLORgee(
+  formula = Value ~ Attribute + rater,
+  id      = newID,
+  data    = ggo,
+  LORstr  = "time.exch",
+  link    = "logit"
+)
+
+summary(ggo_mod5)
+```
+
+```{r}
+#model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
+#fixed-effect model with the proportional odds assumption
+ggo_mod6 <- clm(Value ~ Attribute + rater, data = ggo, link = "logit")
+
+#fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
+ggo_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = ggo, link = "logit")
+
+anova(ggo_mod6, ggo_mod7)
+```
+
+Proportional odds seems to hold
+
+### Consolidations
+
+```{r}
+#make sure everything is in correct format
+cons$Value <- ordered(cons$Value, levels = c(0,1,2,3))
+cons$Attribute <- factor(cons$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+cons$newID <- factor(cons$newID)
+cons$rater <- factor(cons$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+cons_mod1 <- clmm(
+  Value ~ Attribute + rater + (1 | newID),
+  data = cons
+)
+
+summary(cons_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+cons_mod2 <- clmm(
+  Value ~ Attribute + (1 | newID) + (1 | rater),
+  data = cons
+)
+
+summary(cons_mod2)
+```
+
+Error fitting above model: less than 3 levels for rater
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+cons_mod3 <- clmm(
+  Value ~ Attribute + rater + (1 + Attribute | newID),
+  data = cons,
+  control = list(maxIter = 10000)
+)
+
+summary(cons_mod3)
+```
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+cons_mod4 <- clmm(
+  Value ~ Attribute*rater + (1 | newID),
+  data = cons
+)
+
+summary(cons_mod4)
+```
+
+```{r}
+AIC(cons_mod1, cons_mod3, cons_mod4)
+```
+
+```{r}
+#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
+cons$timeIndex <- as.numeric(factor(cons$Attribute, 
+                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
+
+cons_mod5 <- ordLORgee(
+  formula = Value ~ Attribute + rater,
+  id      = newID,
+  data    = cons,
+  LORstr  = "time.exch",
+  link    = "logit"
+)
+
+summary(cons_mod5)
+```
+
+```{r}
+#model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
+#fixed-effect model with the proportional odds assumption
+cons_mod6 <- clm(Value ~ Attribute + rater, data = cons, link = "logit")
+
+#fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
+cons_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = cons, link = "logit")
+
+anova(cons_mod6, cons_mod7)
+```
+
+Proportional odds appears to hold
+
+### Bronchiectasis
+
+```{r}
+#make sure everything is in correct format
+bronch$Value <- ordered(bronch$Value, levels = c(0,1,2,3))
+bronch$Attribute <- factor(bronch$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+bronch$newID <- factor(bronch$newID)
+bronch$rater <- factor(bronch$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+bronch_mod1 <- clmm(
+  Value ~ Attribute + rater + (1 | newID),
+  data = bronch
+)
+
+summary(bronch_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+bronch_mod2 <- clmm(
+  Value ~ Attribute + (1 | newID) + (1 | rater),
+  data = bronch
+)
+
+summary(bronch_mod2)
+```
+
+Error fitting above model: less than 3 levels for rater
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+bronch_mod3 <- clmm(
+  Value ~ Attribute + rater + (1 + Attribute | newID),
+  data = bronch,
+  control = list(maxIter = 10000)
+)
+
+summary(bronch_mod3)
+```
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+bronch_mod4 <- clmm(
+  Value ~ Attribute*rater + (1 | newID),
+  data = bronch
+)
+
+summary(bronch_mod4)
+```
+
+```{r}
+AIC(bronch_mod1, bronch_mod3, bronch_mod4)
+```
+
+```{r}
+#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
+bronch$timeIndex <- as.numeric(factor(bronch$Attribute, 
+                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
+
+bronch_mod5 <- ordLORgee(
+  formula = Value ~ Attribute + rater,
+  id      = newID,
+  data    = bronch,
+  LORstr  = "time.exch",
+  link    = "logit"
+)
+
+summary(bronch_mod5)
+```
+
+```{r}
+#model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
+#fixed-effect model with the proportional odds assumption
+bronch_mod6 <- clm(Value ~ Attribute + rater, data = bronch, link = "logit")
+
+#fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
+bronch_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = bronch, link = "logit")
+
+anova(bronch_mod6, bronch_mod7)
+```
+
+### Atelectasis
+
+```{r}
+#make sure everything is in correct format
+atel$Value <- ordered(atel$Value, levels = c(0,1,2,3))
+atel$Attribute <- factor(atel$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+atel$newID <- factor(atel$newID)
+atel$rater <- factor(atel$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+atel_mod1 <- clmm(
+  Value ~ Attribute + rater + (1 | newID),
+  data = atel
+)
+
+summary(atel_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+atel_mod2 <- clmm(
+  Value ~ Attribute + (1 | newID) + (1 | rater),
+  data = atel
+)
+
+summary(atel_mod2)
+```
+
+Error fitting above model: less than 3 levels for rater
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+atel_mod3 <- clmm(
+  Value ~ Attribute + rater + (1 + Attribute | newID),
+  data = atel,
+  control = list(maxIter = 10000)
+)
+
+summary(atel_mod3)
+```
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+atel_mod4 <- clmm(
+  Value ~ Attribute*rater + (1 | newID),
+  data = atel
+)
+
+summary(atel_mod4)
+```
+
+```{r}
+AIC(bronch_mod1, bronch_mod4)
+```
+
+```{r}
+#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
+bronch$timeIndex <- as.numeric(factor(bronch$Attribute, 
+                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
+
+bronch_mod5 <- ordLORgee(
+  formula = Value ~ Attribute + rater,
+  id      = newID,
+  data    = bronch,
+  LORstr  = "time.exch",
+  link    = "logit"
+)
+
+summary(bronch_mod5)
+```
+
+```{r}
+#model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
+#fixed-effect model with the proportional odds assumption
+bronch_mod6 <- clm(Value ~ Attribute + rater, data = bronch, link = "logit")
+
+#fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
+bronch_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = bronch, link = "logit")
+
+anova(bronch_mod6, bronch_mod7)
+```
+
+```{r}
+#model 8 - bayesian approach to relax proportional odds assumption while including random effects
+#define priors using our frequentist estimates:
+priors <- c(
+  set_prior("normal(1.3352, 1)", class = "b", coef = "AttributeRML"),
+  set_prior("normal(-0.2240, 1)", class = "b", coef = "AttributeRLL"),
+  set_prior("normal(-1.7670, 1)", class = "b", coef = "AttributeLUS"),
+  set_prior("normal(0.6070, 1)", class = "b", coef = "AttributeLLS"),
+  set_prior("normal(-0.7735, 1)", class = "b", coef = "AttributeLLL"),
+  set_prior("normal(1.2279, 0.5)", class = "b", coef = "raterVH"),
+  # For thresholds, we use a weakly informative prior; specifying separate priors for each threshold
+  # is more complex, so we apply a common prior:
+  set_prior("normal(0, 5)", class = "Intercept"),
+  # Prior for the random intercept for subjects:
+  set_prior("student_t(3, 0, 5)", class = "sd", group = "newID")
+)
+
+#fit the partial proportional odds model with the cs() function on Attribute
+bronch_mod8 <- brm(
+  bf(Value ~ cs(Attribute) + rater + (1 | newID)),
+  data   = bronch,
+  family = cumulative("logit", threshold = "flexible"),
+  prior  = priors,
+  chains = 4,
+  iter   = 4000,
+  warmup = 2000,
+  seed   = 123
+)
+
+summary(bronch_mod8)
+
+```
+
+### Thin-wall Cavity
+
+```{r}
+#make sure everything is in correct format
+thin$Value <- as.numeric(as.character(thin$Value))
+thin$Attribute <- factor(thin$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+thin$newID <- factor(thin$newID)
+thin$rater <- factor(thin$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+thin_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+                data = thin,
+                family = binomial(link = "logit"))
+summary(thin_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+thin_mod2 <- glmer(Value ~ Attribute + (1 | newID) + (1 | rater),
+                data = thin,
+                family = binomial(link = "logit"))
+summary(thin_mod2)
+```
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+thin_mod3 <- glmer(Value ~ Attribute + rater + (1 + Attribute | newID),
+                data = thin,
+                family = binomial(link = "logit"),
+                control = glmerControl(optimizer = "bobyqa"))
+summary(thin_mod3)
+```
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+thin_mod4 <- glmer(Value ~ Attribute * rater + (1 | newID),
+                data = thin,
+                family = binomial(link = "logit"),
+                control = glmerControl(optimizer = "bobyqa"))
+summary(thin_mod4)
+```
+
+```{r}
+#model 5 - 
+thin_mod5 <- geeglm(Value ~ Attribute + rater,
+                        id = newID,       # cluster identifier
+                        data = thin,
+                        family = binomial(link = "logit"),
+                        corstr = "ar1")
+summary(thin_mod5)
+```
+
+```{r}
+AIC(thin_mod1, thin_mod2, thin_mod3, thin_mod4)
+```
+
+### Thick-wall Cavity
+
+```{r}
+#make sure everything is in correct format
+thick$Value <- as.numeric(as.character(thick$Value))
+thick$Attribute <- factor(thick$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+thick$newID <- factor(thick$newID)
+thick$rater <- factor(thick$rater)
+
+#model 1 - lobe and rater as fixed effects and random int
+thick_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+                data = thick,
+                family = binomial(link = "logit"))
+summary(thick_mod1)
+```
+
+```{r}
+#model 2 - lobe as fixed effect, rater as random effect and random int
+thick_mod2 <- glmer(Value ~ Attribute + (1 | newID) + (1 | rater),
+                data = thick,
+                family = binomial(link = "logit"))
+summary(thick_mod2)
+```
+
+Singular: random effect of rater is negligible (?)
+
+```{r}
+#model 3 - lobe and rater as fixed effects, random int and random slope for lobe
+thick_mod3 <- glmer(Value ~ Attribute + rater + (1 + Attribute | newID),
+                data = thick,
+                family = binomial(link = "logit"))
+summary(thick_mod3)
+```
+
+```{r}
+#model 4 - interaction between lobe and rater with random int
+thick_mod4 <- glmer(Value ~ Attribute * rater + (1 | newID),
+                data = thick,
+                family = binomial(link = "logit"),
+                control = glmerControl(optimizer = "bobyqa"))
+summary(thick_mod4)
+```
+
+```{r}
+AIC(thick_mod1, thick_mod2, thick_mod3, thick_mod4)
+```
+
+```{r}
+#model 5 - 
+thick_mod5 <- geeglm(Value ~ Attribute + rater,
+                        id = newID,       # cluster identifier
+                        data = thick,
+                        family = binomial(link = "logit"),
+                        corstr = "ar1")
+summary(thick_mod5)
 ```
