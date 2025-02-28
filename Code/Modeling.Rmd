@@ -155,25 +155,25 @@ summary(tib_mod1)
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-tib_mod2 <- clmm(
-  Value ~ Attribute + (1 | newID) + (1 | rater),
-  data = tib
-)
+#tib_mod2 <- clmm(
+ # Value ~ Attribute + (1 | newID) + (1 | rater),
+  #data = tib
+#)
 
-summary(tib_mod2)
+#summary(tib_mod2)
 ```
 
 Error fitting above model: less than 3 levels for rater
 
 ```{r}
 #model 3 - lobe and rater as fixed effects, random int and random slope for lobe
-tib_mod3 <- clmm(
-  Value ~ Attribute + rater + (1 + Attribute | newID),
-  data = tib,
-  control = list(maxIter = 10000)
-)
+#tib_mod3 <- clmm(
+ # Value ~ Attribute + rater + (1 + Attribute | newID),
+  #data = tib,
+  #control = list(maxIter = 10000)
+#)
 
-summary(tib_mod3)
+#summary(tib_mod3)
 ```
 
 Error fitting above model: failed to converge
@@ -193,16 +193,12 @@ AIC(tib_mod1, tib_mod4)
 ```
 
 ```{r}
-#model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
-tib$timeIndex <- as.numeric(factor(tib$Attribute, 
-                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
-
 tib_mod5 <- ordLORgee(
-  formula = Value ~ Attribute + rater,
-  id      = newID,
-  data    = tib,
-  LORstr  = "time.exch",
-  link    = "logit"
+  formula  = Value ~ Attribute + rater,
+  id       = newID,
+  data     = tib,
+  LORstr   = "uniform",
+  link     = "logit"
 )
 
 summary(tib_mod5)
@@ -282,11 +278,11 @@ Singular fit: random effect of rater is negligible (?)
 
 ```{r}
 #model 3 - lobe and rater as fixed effects, random int and random slope for lobe
-ln_mod3 <- glmer(Value ~ Attribute + rater + (1 + Attribute | newID),
-                data = ln,
-                family = binomial(link = "logit"),
-                control = glmerControl(optimizer = "bobyqa"))
-summary(ln_mod3)
+#ln_mod3 <- glmer(Value ~ Attribute + rater + (1 + Attribute | newID),
+ #               data = ln,
+  #              family = binomial(link = "logit"),
+   #             control = glmerControl(optimizer = "bobyqa"))
+#summary(ln_mod3)
 ```
 
 Model failed to converge
@@ -306,7 +302,7 @@ ln_mod5 <- geeglm(Value ~ Attribute + rater,
                         id = newID,       # cluster identifier
                         data = ln,
                         family = binomial(link = "logit"),
-                        corstr = "ar1")
+                        corstr = "exchangeable")
 summary(ln_mod5)
 ```
 
@@ -334,25 +330,25 @@ summary(ggo_mod1)
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-ggo_mod2 <- clmm(
-  Value ~ Attribute + (1 | newID) + (1 | rater),
-  data = ggo
-)
+#ggo_mod2 <- clmm(
+ # Value ~ Attribute + (1 | newID) + (1 | rater),
+  #data = ggo
+#)
 
-summary(ggo_mod2)
+#summary(ggo_mod2)
 ```
 
 Error fitting above model: less than 3 levels for rater
 
 ```{r}
 #model 3 - lobe and rater as fixed effects, random int and random slope for lobe
-ggo_mod3 <- clmm(
-  Value ~ Attribute + rater + (1 + Attribute | newID),
-  data = ggo,
-  control = list(maxIter = 10000)
-)
+#ggo_mod3 <- clmm(
+#  Value ~ Attribute + rater + (1 + Attribute | newID),
+#  data = ggo,
+#  control = list(maxIter = 10000)
+#)
 
-summary(ggo_mod3)
+#summary(ggo_mod3)
 ```
 
 Error fitting above model: failed to converge
@@ -373,14 +369,11 @@ AIC(ggo_mod1, ggo_mod4)
 
 ```{r}
 #model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
-ggo$timeIndex <- as.numeric(factor(ggo$Attribute, 
-                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
-
 ggo_mod5 <- ordLORgee(
   formula = Value ~ Attribute + rater,
   id      = newID,
   data    = ggo,
-  LORstr  = "time.exch",
+  LORstr  = "uniform",
   link    = "logit"
 )
 
@@ -420,25 +413,25 @@ summary(cons_mod1)
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-cons_mod2 <- clmm(
-  Value ~ Attribute + (1 | newID) + (1 | rater),
-  data = cons
-)
+#cons_mod2 <- clmm(
+#  Value ~ Attribute + (1 | newID) + (1 | rater),
+#  data = cons
+#)
 
-summary(cons_mod2)
+#summary(cons_mod2)
 ```
 
 Error fitting above model: less than 3 levels for rater
 
 ```{r}
 #model 3 - lobe and rater as fixed effects, random int and random slope for lobe
-cons_mod3 <- clmm(
-  Value ~ Attribute + rater + (1 + Attribute | newID),
-  data = cons,
-  control = list(maxIter = 10000)
-)
+#cons_mod3 <- clmm(
+#  Value ~ Attribute + rater + (1 + Attribute | newID),
+#  data = cons,
+#  control = list(maxIter = 10000)
+#)
 
-summary(cons_mod3)
+#summary(cons_mod3)
 ```
 
 ```{r}
@@ -457,14 +450,11 @@ AIC(cons_mod1, cons_mod3, cons_mod4)
 
 ```{r}
 #model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
-cons$timeIndex <- as.numeric(factor(cons$Attribute, 
-                                   levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
-
 cons_mod5 <- ordLORgee(
   formula = Value ~ Attribute + rater,
   id      = newID,
   data    = cons,
-  LORstr  = "time.exch",
+  LORstr  = "uniform",
   link    = "logit"
 )
 
@@ -504,12 +494,12 @@ summary(bronch_mod1)
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-bronch_mod2 <- clmm(
-  Value ~ Attribute + (1 | newID) + (1 | rater),
-  data = bronch
-)
+#bronch_mod2 <- clmm(
+#  Value ~ Attribute + (1 | newID) + (1 | rater),
+#  data = bronch
+#)
 
-summary(bronch_mod2)
+#summary(bronch_mod2)
 ```
 
 Error fitting above model: less than 3 levels for rater
@@ -586,25 +576,25 @@ summary(atel_mod1)
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-atel_mod2 <- clmm(
-  Value ~ Attribute + (1 | newID) + (1 | rater),
-  data = atel
-)
+#atel_mod2 <- clmm(
+#  Value ~ Attribute + (1 | newID) + (1 | rater),
+#  data = atel
+#)
 
-summary(atel_mod2)
+#summary(atel_mod2)
 ```
 
 Error fitting above model: less than 3 levels for rater
 
 ```{r}
 #model 3 - lobe and rater as fixed effects, random int and random slope for lobe
-atel_mod3 <- clmm(
-  Value ~ Attribute + rater + (1 + Attribute | newID),
-  data = atel,
-  control = list(maxIter = 10000)
-)
+#atel_mod3 <- clmm(
+#  Value ~ Attribute + rater + (1 + Attribute | newID),
+#  data = atel,
+#  control = list(maxIter = 10000)
+#)
 
-summary(atel_mod3)
+#summary(atel_mod3)
 ```
 
 ```{r}
@@ -793,3 +783,4 @@ thick_mod5 <- geeglm(Value ~ Attribute + rater,
                         corstr = "ar1")
 summary(thick_mod5)
 ```
+
