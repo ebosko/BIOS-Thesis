@@ -197,7 +197,7 @@ tib_mod5 <- ordLORgee(
   formula  = Value ~ Attribute + rater,
   id       = newID,
   data     = tib,
-  LORstr   = "uniform",
+  LORstr   = "independence",
   link     = "logit"
 )
 
@@ -255,13 +255,14 @@ summary(tib_mod8)
 ```{r}
 #make sure everything is in correct format
 ln$Value <- as.numeric(as.character(ln$Value))
+ln_clean <- ln %>% filter(Value %in% c(0, 1))
 ln$Attribute <- factor(ln$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 ln$newID <- factor(ln$newID)
 ln$rater <- factor(ln$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 ln_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
-                data = ln,
+                data = ln_clean,
                 family = binomial(link = "logit"))
 summary(ln_mod1)
 ```
@@ -300,7 +301,7 @@ summary(ln_mod4)
 #model 5 - 
 ln_mod5 <- geeglm(Value ~ Attribute + rater,
                         id = newID,       # cluster identifier
-                        data = ln,
+                        data = ln_clean,
                         family = binomial(link = "logit"),
                         corstr = "exchangeable")
 summary(ln_mod5)
@@ -608,23 +609,23 @@ summary(atel_mod4)
 ```
 
 ```{r}
-AIC(bronch_mod1, bronch_mod4)
+AIC(atel_mod1, atel_mod4)
 ```
 
 ```{r}
 #model 5 - GEE with lobe and rater as fixed effects and an exchangeable correlation structure
-bronch$timeIndex <- as.numeric(factor(bronch$Attribute, 
+atel$timeIndex <- as.numeric(factor(atel$Attribute, 
                                    levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")))
 
-bronch_mod5 <- ordLORgee(
+atel_mod5 <- ordLORgee(
   formula = Value ~ Attribute + rater,
   id      = newID,
-  data    = bronch,
+  data    = atel,
   LORstr  = "time.exch",
   link    = "logit"
 )
 
-summary(bronch_mod5)
+summary(atel_mod5)
 ```
 
 ```{r}
@@ -681,7 +682,7 @@ thin$newID <- factor(thin$newID)
 thin$rater <- factor(thin$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
-thin_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+thin_mod1 <- glmer(Value ~ Attribute  + rater + (1 | newID),
                 data = thin,
                 family = binomial(link = "logit"))
 summary(thin_mod1)
