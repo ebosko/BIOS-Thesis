@@ -154,6 +154,12 @@ summary(tib_mod1)
 ```
 
 ```{r}
+#compute pairwise comparisons
+emm <- emmeans(tib_mod1, ~ Attribute, type = "link")
+pairs(emm)
+```
+
+```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
 #tib_mod2 <- clmm(
  # Value ~ Attribute + (1 | newID) + (1 | rater),
@@ -268,6 +274,12 @@ summary(ln_mod1)
 ```
 
 ```{r}
+#compute pairwise comparisons
+emm <- emmeans(ln_mod1, ~ Attribute, type = "link")
+pairs(emm)
+```
+
+```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
 ln_mod2 <- glmer(Value ~ Attribute + (1 | newID) + (1 | rater),
                 data = ln,
@@ -327,6 +339,12 @@ ggo_mod1 <- clmm(
 )
 
 summary(ggo_mod1)
+```
+
+```{r}
+#compute pairwise comparisons
+emm <- emmeans(ggo_mod1, ~ Attribute, type = "link")
+pairs(emm)
 ```
 
 ```{r}
@@ -413,6 +431,12 @@ summary(cons_mod1)
 ```
 
 ```{r}
+#compute pairwise comparisons
+emm <- emmeans(cons_mod1, ~ Attribute, type = "link")
+pairs(emm)
+```
+
+```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
 #cons_mod2 <- clmm(
 #  Value ~ Attribute + (1 | newID) + (1 | rater),
@@ -491,6 +515,12 @@ bronch_mod1 <- clmm(
 )
 
 summary(bronch_mod1)
+```
+
+```{r}
+#compute pairwise comparisons
+emm <- emmeans(bronch_mod1, ~ Attribute, type = "link")
+pairs(emm)
 ```
 
 ```{r}
@@ -576,6 +606,12 @@ summary(atel_mod1)
 ```
 
 ```{r}
+#compute pairwise comparisons
+emm <- emmeans(atel_mod1, ~ Attribute, type = "link")
+pairs(emm)
+```
+
+```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
 #atel_mod2 <- clmm(
 #  Value ~ Attribute + (1 | newID) + (1 | rater),
@@ -631,46 +667,15 @@ summary(atel_mod5)
 ```{r}
 #model 6 and 7 - proportional odds model compared to partial proportional odds model allowing lobe effect to vary across thresholds
 #fixed-effect model with the proportional odds assumption
-bronch_mod6 <- clm(Value ~ Attribute + rater, data = bronch, link = "logit")
+atel_mod6 <- clm(Value ~ Attribute + rater, data = atel, link = "logit")
 
 #fixed-effect model allowing the effect of Attribute to vary (non-PO) across thresholds
-bronch_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = bronch, link = "logit")
+atel_mod7 <- clm(Value ~ Attribute + rater, nominal = ~ Attribute, data = atel, link = "logit")
 
-anova(bronch_mod6, bronch_mod7)
+anova(atel_mod6, atel_mod7)
 ```
 
-```{r}
-#model 8 - bayesian approach to relax proportional odds assumption while including random effects
-#define priors using our frequentist estimates:
-priors <- c(
-  set_prior("normal(1.3352, 1)", class = "b", coef = "AttributeRML"),
-  set_prior("normal(-0.2240, 1)", class = "b", coef = "AttributeRLL"),
-  set_prior("normal(-1.7670, 1)", class = "b", coef = "AttributeLUS"),
-  set_prior("normal(0.6070, 1)", class = "b", coef = "AttributeLLS"),
-  set_prior("normal(-0.7735, 1)", class = "b", coef = "AttributeLLL"),
-  set_prior("normal(1.2279, 0.5)", class = "b", coef = "raterVH"),
-  # For thresholds, we use a weakly informative prior; specifying separate priors for each threshold
-  # is more complex, so we apply a common prior:
-  set_prior("normal(0, 5)", class = "Intercept"),
-  # Prior for the random intercept for subjects:
-  set_prior("student_t(3, 0, 5)", class = "sd", group = "newID")
-)
 
-#fit the partial proportional odds model with the cs() function on Attribute
-bronch_mod8 <- brm(
-  bf(Value ~ cs(Attribute) + rater + (1 | newID)),
-  data   = bronch,
-  family = cumulative("logit", threshold = "flexible"),
-  prior  = priors,
-  chains = 4,
-  iter   = 4000,
-  warmup = 2000,
-  seed   = 123
-)
-
-summary(bronch_mod8)
-
-```
 
 ### Thin-wall Cavity
 
@@ -686,6 +691,12 @@ thin_mod1 <- glmer(Value ~ Attribute  + rater + (1 | newID),
                 data = thin,
                 family = binomial(link = "logit"))
 summary(thin_mod1)
+```
+
+```{r}
+#compute pairwise comparisons
+emm <- emmeans(thin_mod1, ~ Attribute, type = "link")
+pairs(emm)
 ```
 
 ```{r}
@@ -742,6 +753,12 @@ thick_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
                 data = thick,
                 family = binomial(link = "logit"))
 summary(thick_mod1)
+```
+
+```{r}
+#compute pairwise comparisons
+emm <- emmeans(thick_mod1, ~ Attribute, type = "link")
+pairs(emm)
 ```
 
 ```{r}
