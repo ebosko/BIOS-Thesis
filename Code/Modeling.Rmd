@@ -332,3 +332,4 @@ pairs(emm)
 
 ## Statistical Model Notation
 
+$\lambda_{ijkl} = log(\frac{P(Score_{ijk} \leq l|b_i, b_k )}{1-P(Score_{ijk }\leq l | b_i,b_k)}) = \alpha_l + \beta_1(lobe_j) + \beta_2(rater_k) + b_i + b_k, \ where \ i=subject, \ j=lobe, \ k=rater, \ l=score \ level, \ b_i \sim N(0,\sigma^2_{subject}), \ and \ b_k \sim N(0,\sigma^2_{rater}). \ Thus \ we \ have \ ICC=\frac{\sigma^2_{subject}}{\sigma^2_{subject} + \sigma^2_{rater}}$
