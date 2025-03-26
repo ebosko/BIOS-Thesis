@@ -1,0 +1,38 @@
+<fulfillmentToken fulfillmentType="loan" auth="user" xmlns="http://ns.adobe.com/adept">
+  <distributor>urn:uuid:9cb786e8-586a-4950-8901-fff8d2ee6025</distributor>
+  <operatorURL>https://acs.ebookcentral.proquest.com/fulfillment</operatorURL>
+  <transaction>1138225_591709252</transaction>
+  <purchase>2025-04-09T14:39:36+00:00</purchase>
+  <expiration>2025-04-09T20:39:36+00:00</expiration>
+  <resourceItemInfo>
+    <resource>urn:uuid:00000000-0000-0000-0000-000001138225</resource>
+    <resourceItem>0</resourceItem>
+    <metadata>
+      <dc:title xmlns:dc="http://purl.org/dc/elements/1.1/">Applied Logistic Regression</dc:title>
+      <dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">Hosmer, David W., Jr.;Lemeshow, Stanley;Sturdivant, Rodney X.;</dc:creator>
+      <dc:publisher xmlns:dc="http://purl.org/dc/elements/1.1/">John Wiley &amp; Sons, Incorporated</dc:publisher>
+      <dc:identifier xmlns:dc="http://purl.org/dc/elements/1.1/">1138225</dc:identifier>
+      <dc:format xmlns:dc="http://purl.org/dc/elements/1.1/">application/pdf</dc:format>
+    </metadata>
+    <licenseToken>
+      <resource>urn:uuid:00000000-0000-0000-0000-000001138225</resource>
+      <permissions>
+        <display>
+          <duration>1814399</duration>
+        </display>
+        <excerpt>
+          <duration>1814399</duration>
+          <count initial="27" max="27" incrementInterval="67199"/>
+        </excerpt>
+        <print>
+          <duration>1814399</duration>
+          <count initial="106" max="106" incrementInterval="17116"/>
+        </print>
+        <play>
+          <duration>1814399</duration>
+        </play>
+      </permissions>
+    </licenseToken>
+  </resourceItemInfo>
+  <hmac>ymqhoMgCdIjYWZQJmeH34Fg3zFg=</hmac>
+</fulfillmentToken>
