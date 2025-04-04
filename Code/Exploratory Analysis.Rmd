@@ -27,7 +27,7 @@ This file will be used for exploratory analysis: evaluating the spread and distr
 ### Tree-in-bud
 
 ```{r}
-# Read in each rater's sheet
+#read in data
 vh_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.TIB.Long") %>% 
   mutate(rater = "VH")
 
@@ -608,6 +608,112 @@ thick %>%
     fill='Rating'
   ) +
   theme_minimal()
+```
+
+## Heatmap
+
+### Ordinal Outcomes
+
+```{r}
+# Add feature labels
+tib$feature <- "TIB"
+ggo$feature <- "GGO"
+bronch$feature <- "Bronchiectasis"
+cons$feature <- "Consolidation"
+atel$feature <- "Atelectasis"
+
+# Bind together
+ordinal_data <- bind_rows(tib, ggo, bronch, cons, atel)
+
+# Create heatmap data: average score per lobe and feature
+heatmap_data_ordinal <- ordinal_data %>%
+  group_by(Attribute, feature) %>%
+  summarize(mean_score = mean(Value, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(heatmap_data_ordinal, aes(x = feature, y = Attribute, fill = mean_score)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Avg Score") +
+  labs(
+    title = "Average CT Score by Feature and Lobe (Ordinal Features)",
+    x = "CT Feature",
+    y = "Lung Lobe"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+### Binary Outcomes
+
+```{r}
+# Add feature labels
+ln$feature <- "Large Nodules"
+thin$feature <- "Thin-wall Cavity"
+thick$feature <- "Thick-wall Cavity"
+
+# Bind
+binary_data <- bind_rows(ln, thin, thick)
+
+# Create heatmap data
+heatmap_data_binary <- binary_data %>%
+  group_by(Attribute, feature) %>%
+  summarize(mean_score = mean(as.numeric(Value), na.rm = TRUE)) %>%
+  ungroup()
+
+# Plot heatmap
+ggplot(heatmap_data_binary, aes(x = feature, y = Attribute, fill = mean_score)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightyellow", high = "red", name = "Proportion Present") +
+  labs(
+    title = "Proportion of Binary CT Feature Present by Lobe",
+    x = "CT Feature",
+    y = "Lung Lobe"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+## Small Multiples
+
+```{r}
+# Add feature label for each ordinal dataset
+tib$feature <- "TIB"
+ggo$feature <- "GGO"
+bronch$feature <- "BRONCH"
+cons$feature <- "CONS"
+atel$feature <- "ATEL"
+
+# Combine all ordinal features into one
+ordinal_all <- bind_rows(tib, ggo, bronch, cons, atel)
+
+# Clean and reformat
+ordinal_all <- ordinal_all %>%
+  mutate(
+    Value = as.numeric(as.character(Value)),  # ensure numeric
+    Attribute = factor(Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")),
+    feature = factor(feature, levels = c("TIB", "GGO", "CONS", "ATEL", "BRONCH"))
+  )
+
+# Create small multiples matrix of score distributions
+ggplot(ordinal_all, aes(x = rater, y = Value, fill = rater)) +
+  geom_violin(scale = "width", adjust = 1, trim = FALSE, alpha = 0.6, color = NA) +
+  geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.9) +
+  facet_grid(feature ~ Attribute) +
+  scale_y_continuous(breaks = c(0, 3)) +
+  scale_fill_brewer(palette = "Set1") +
+  labs(
+    title = "Score Distributions by Lobe and CT Feature",
+    x = "Rater",
+    y = "Score"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 10),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  )
+
 ```
 
 ## Simple Models without Random Effects; Lobe as only Fixed Effect
