@@ -28,104 +28,21 @@ This file will be used for exploratory analysis: evaluating the spread and distr
 
 ```{r}
 #read in data
-vh_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.TIB.Long") %>% 
-  mutate(rater = "VH")
+tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "tib.long")
 
-jw_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.TIB.Long") %>% 
-  mutate(rater = "JW")
+ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ggo.long")
 
-tib <- bind_rows(vh_tib, jw_tib)
-```
+cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "cons.long")
 
-### Large Nodules
+bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "bronch.long")
 
-```{r}
-# Read in each rater's sheet
-vh_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.LN.Long") %>% 
-  mutate(rater = "VH")
+atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "atel.long")
 
-jw_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.LN.Long") %>% 
-  mutate(rater = "JW")
+ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ln.long")
 
-ln <- bind_rows(vh_ln, jw_ln)
-```
+thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thin.long")
 
-### Ground-glass Opacities
-
-```{r}
-# Read in each rater's sheet
-vh_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.GGO.Long") %>% 
-  mutate(rater = "VH")
-
-jw_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.GGO.Long") %>% 
-  mutate(rater = "JW")
-
-ggo <- bind_rows(vh_ggo, jw_ggo)
-```
-
-### Consolidations
-
-```{r}
-# Read in each rater's sheet
-vh_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.CONS.Long") %>% 
-  mutate(rater = "VH")
-
-jw_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.CONS.Long") %>% 
-  mutate(rater = "JW")
-
-cons <- bind_rows(vh_cons, jw_cons)
-```
-
-### Bronchiectasis
-
-```{r}
-# Read in each rater's sheet
-vh_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.BRONCH.Long") %>% 
-  mutate(rater = "VH")
-
-jw_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.BRONCH.Long") %>% 
-  mutate(rater = "JW")
-
-bronch <- bind_rows(vh_bronch, jw_bronch)
-```
-
-### Atelectasis
-
-```{r}
-# Read in each rater's sheet
-vh_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.ATEL.Long") %>% 
-  mutate(rater = "VH")
-
-jw_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.ATEL.Long") %>% 
-  mutate(rater = "JW")
-
-atel <- bind_rows(vh_atel, jw_atel)
-```
-
-### Thin-wall Cavity
-
-```{r}
-# Read in each rater's sheet
-vh_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thin.Long") %>% 
-  mutate(rater = "VH")
-
-jw_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thin.Long") %>% 
-  mutate(rater = "JW")
-
-thin <- bind_rows(vh_thin, jw_thin)
-```
-
-### Thick-wall Cavity
-
-```{r}
-# Read in each rater's sheet
-vh_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thick.Long") %>% 
-  mutate(rater = "VH")
-
-jw_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thick.Long") %>% 
-  mutate(rater = "JW")
-
-thick <- bind_rows(vh_thick, jw_thick)
+thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
 ```
 
 ## Visualize the Distribution of Scores
@@ -135,11 +52,11 @@ thick <- bind_rows(vh_thick, jw_thick)
 ```{r}
 #by rating 
 tib %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(tib, aes(x=factor(Value), fill=rater)) +
+ggplot(tib, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Tree-in-bud Ratings',
        x='Rating',
@@ -147,13 +64,13 @@ ggplot(tib, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 tib %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 tib %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of TIB Ratings by Lobe',
@@ -165,8 +82,8 @@ tib %>%
 
 tib %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s TIB Ratings by Lobe',
@@ -178,8 +95,8 @@ tib %>%
 
 tib %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s TIB Ratings by Lobe',
@@ -195,11 +112,11 @@ tib %>%
 ```{r}
 #by rating 
 ln %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(ln, aes(x=factor(Value), fill=rater)) +
+ggplot(ln, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Large Nodule Ratings',
        x='Rating',
@@ -207,13 +124,13 @@ ggplot(ln, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 ln %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 ln %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of LN Ratings by Lobe',
@@ -225,8 +142,8 @@ ln %>%
 
 ln %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s LN Ratings by Lobe',
@@ -238,8 +155,8 @@ ln %>%
 
 ln %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s LN Ratings by Lobe',
@@ -250,16 +167,16 @@ ln %>%
   theme_minimal()
 ```
 
-### Ground-glass Opacities - See "Questions for Ed" file for discrepancy with JW's "10" rating
+### Ground-glass Opacities
 
 ```{r}
 #by rating 
 ggo %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(ggo, aes(x=factor(Value), fill=rater)) +
+ggplot(ggo, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Ground Glass Opacity Ratings',
        x='Rating',
@@ -267,13 +184,13 @@ ggplot(ggo, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 ggo %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 ggo %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of GGO Ratings by Lobe',
@@ -285,8 +202,8 @@ ggo %>%
 
 ggo %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s GGO Ratings by Lobe',
@@ -298,8 +215,8 @@ ggo %>%
 
 ggo %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s GGO Ratings by Lobe',
@@ -315,11 +232,11 @@ ggo %>%
 ```{r}
 #by rating 
 cons %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(cons, aes(x=factor(Value), fill=rater)) +
+ggplot(cons, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Consolidation Ratings',
        x='Rating',
@@ -327,13 +244,13 @@ ggplot(cons, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 cons %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 cons %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of Consolidation Ratings by Lobe',
@@ -345,8 +262,8 @@ cons %>%
 
 cons %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s Consolidation Ratings by Lobe',
@@ -358,8 +275,8 @@ cons %>%
 
 cons %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s Consolidation Ratings by Lobe',
@@ -375,11 +292,11 @@ cons %>%
 ```{r}
 #by rating 
 bronch %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(bronch, aes(x=factor(Value), fill=rater)) +
+ggplot(bronch, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Bronchiectasis Ratings',
        x='Rating',
@@ -387,13 +304,13 @@ ggplot(bronch, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 bronch %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 bronch %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of Bronchiectasis Ratings by Lobe',
@@ -405,8 +322,8 @@ bronch %>%
 
 bronch %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s Bronchiectasis Ratings by Lobe',
@@ -418,8 +335,8 @@ bronch %>%
 
 bronch %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s Bronchiectasis Ratings by Lobe',
@@ -435,11 +352,11 @@ bronch %>%
 ```{r}
 #by rating 
 atel %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(atel, aes(x=factor(Value), fill=rater)) +
+ggplot(atel, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Atelectasis Ratings',
        x='Rating',
@@ -447,13 +364,13 @@ ggplot(atel, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 atel %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 atel %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of Atelectasis Ratings by Lobe',
@@ -465,8 +382,8 @@ atel %>%
 
 atel %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s Atelectasis Ratings by Lobe',
@@ -478,8 +395,8 @@ atel %>%
 
 atel %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s Atelectasis Ratings by Lobe',
@@ -495,11 +412,11 @@ atel %>%
 ```{r}
 #by rating 
 thin %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(thin, aes(x=factor(Value), fill=rater)) +
+ggplot(thin, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Thin Wall Cavity Ratings',
        x='Rating',
@@ -507,13 +424,13 @@ ggplot(thin, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 thin %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 thin %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of Thin Wall Cavity Ratings by Lobe',
@@ -525,8 +442,8 @@ thin %>%
 
 thin %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s Thin Wall Cavity Ratings by Lobe',
@@ -538,8 +455,8 @@ thin %>%
 
 thin %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s Thin Wall Cavity Ratings by Lobe',
@@ -555,11 +472,11 @@ thin %>%
 ```{r}
 #by rating 
 thick %>%
-  group_by(rater, Value) %>%
+  group_by(rater, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
-ggplot(thick, aes(x=factor(Value), fill=rater)) +
+ggplot(thick, aes(x=factor(score), fill=rater)) +
   geom_bar(position = 'dodge') +
   labs(title = 'Distribution of Thick Wall Cavity Ratings',
        x='Rating',
@@ -567,13 +484,13 @@ ggplot(thick, aes(x=factor(Value), fill=rater)) +
 
 #by lobe
 thick %>%
-  group_by(Attribute, Value) %>%
+  group_by(lobe, score) %>%
   summarize(n=n()) %>%
   mutate(prop = n / sum(n))
 
 thick %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of Thick Wall Cavity Ratings by Lobe',
@@ -585,8 +502,8 @@ thick %>%
 
 thick %>%
   filter(rater == 'JW') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of JW\'s Thick Wall Cavity Ratings by Lobe',
@@ -598,8 +515,8 @@ thick %>%
 
 thick %>%
   filter(rater == 'VH') %>%
-  mutate(Value = factor(Value, levels = c(3,2,1,0))) %>%
-  ggplot(aes (x=Attribute, fill = factor(Value))) +
+  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
     title = 'Distribution of VH\'s Thick Wall Cavity Ratings by Lobe',
@@ -627,11 +544,11 @@ ordinal_data <- bind_rows(tib, ggo, bronch, cons, atel)
 
 # Create heatmap data: average score per lobe and feature
 heatmap_data_ordinal <- ordinal_data %>%
-  group_by(Attribute, feature) %>%
-  summarize(mean_score = mean(Value, na.rm = TRUE)) %>%
+  group_by(lobe, feature) %>%
+  summarize(mean_score = mean(score, na.rm = TRUE)) %>%
   ungroup()
 
-ggplot(heatmap_data_ordinal, aes(x = feature, y = Attribute, fill = mean_score)) +
+ggplot(heatmap_data_ordinal, aes(x = feature, y = lobe, fill = mean_score)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Avg Score") +
   labs(
@@ -656,12 +573,12 @@ binary_data <- bind_rows(ln, thin, thick)
 
 # Create heatmap data
 heatmap_data_binary <- binary_data %>%
-  group_by(Attribute, feature) %>%
-  summarize(mean_score = mean(as.numeric(Value), na.rm = TRUE)) %>%
+  group_by(lobe, feature) %>%
+  summarize(mean_score = mean(as.numeric(score), na.rm = TRUE)) %>%
   ungroup()
 
 # Plot heatmap
-ggplot(heatmap_data_binary, aes(x = feature, y = Attribute, fill = mean_score)) +
+ggplot(heatmap_data_binary, aes(x = feature, y = lobe, fill = mean_score)) +
   geom_tile(color = "white") +
   scale_fill_gradient(low = "lightyellow", high = "red", name = "Proportion Present") +
   labs(
@@ -690,16 +607,16 @@ ordinal_all <- bind_rows(tib, ggo, bronch, cons, atel)
 # Clean and reformat
 ordinal_all <- ordinal_all %>%
   mutate(
-    Value = as.numeric(as.character(Value)),  # ensure numeric
-    Attribute = factor(Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")),
+    score = as.numeric(as.character(score)),  # ensure numeric
+    lobe = factor(lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")),
     feature = factor(feature, levels = c("TIB", "GGO", "CONS", "ATEL", "BRONCH"))
   )
 
 # Create small multiples matrix of score distributions
-ggplot(ordinal_all, aes(x = rater, y = Value, fill = rater)) +
+ggplot(ordinal_all, aes(x = rater, y = score, fill = rater)) +
   geom_violin(scale = "width", adjust = 1, trim = FALSE, alpha = 0.6, color = NA) +
   geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.9) +
-  facet_grid(feature ~ Attribute) +
+  facet_grid(feature ~ lobe) +
   scale_y_continuous(breaks = c(0, 3)) +
   scale_fill_brewer(palette = "Set1") +
   labs(
@@ -723,15 +640,15 @@ ggplot(ordinal_all, aes(x = rater, y = Value, fill = rater)) +
 ```{r}
 tib_jw <- subset(tib, rater == "JW")
 
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-tib_jw$Value <- ordered(tib_jw$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+tib_jw$score <- ordered(tib_jw$score, levels = c(0,1,2,3))
 
-tib_jw$Attribute <- factor(tib_jw$Attribute, 
+tib_jw$lobe <- factor(tib_jw$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 tib_polr <- polr(
-  Value ~ Attribute, 
+  score ~ lobe, 
   data = tib_jw, 
   method = "logistic", 
   Hess = TRUE
@@ -744,7 +661,7 @@ summary(tib_polr)
 brant(tib_polr)
 
 #set up contrasts to compare lobes
-tib_emm <- emmeans(tib_polr, ~ Attribute)
+tib_emm <- emmeans(tib_polr, ~ lobe)
 tib_emm
 pairs(tib_emm)
 ```
@@ -765,23 +682,23 @@ LUS vs all other lobes
 #subset data for rater JW
 ln_jw <- subset(ln, rater == "JW")
 
-#ensure Value is a factor with levels 0 and 1
-ln_jw$Value <- factor(ln_jw$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+ln_jw$score <- factor(ln_jw$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-ln_jw$Attribute <- factor(ln_jw$Attribute, 
+#make lobe a factor in the desired order
+ln_jw$lobe <- factor(ln_jw$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-ln_glm <- glm(Value ~ Attribute, 
+ln_glm <- glm(score ~ lobe, 
                  data = ln_jw, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(ln_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-ln_emm <- emmeans(ln_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+ln_emm <- emmeans(ln_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(ln_emm)
@@ -801,15 +718,15 @@ Borderline significant findings:
 ```{r}
 ggo_jw <- subset(ggo, rater == "JW")
 
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-ggo_jw$Value <- ordered(ggo_jw$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+ggo_jw$score <- ordered(ggo_jw$score, levels = c(0,1,2,3))
 
-ggo_jw$Attribute <- factor(ggo_jw$Attribute, 
+ggo_jw$lobe <- factor(ggo_jw$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 ggo_polr <- polr(
-  Value ~ Attribute, 
+  score ~ lobe, 
   data = ggo_jw, 
   method = "logistic", 
   Hess = TRUE
@@ -822,7 +739,7 @@ summary(ggo_polr)
 brant(ggo_polr)
 
 #set up contrasts to compare lobes
-ggo_emm <- emmeans(ggo_polr, ~ Attribute)
+ggo_emm <- emmeans(ggo_polr, ~ lobe)
 ggo_emm
 pairs(ggo_emm)
 ```
@@ -836,15 +753,15 @@ No significant differences between lobes
 ```{r}
 cons_jw <- subset(cons, rater == "JW")
 
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-cons_jw$Value <- ordered(cons_jw$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+cons_jw$score <- ordered(cons_jw$score, levels = c(0,1,2,3))
 
-cons_jw$Attribute <- factor(cons_jw$Attribute, 
+cons_jw$lobe <- factor(cons_jw$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 cons_polr <- polr(
-  Value ~ Attribute, 
+  score ~ lobe, 
   data = cons_jw, 
   method = "logistic", 
   Hess = TRUE
@@ -857,7 +774,7 @@ summary(cons_polr)
 brant(cons_polr)
 
 #set up contrasts to compare lobes
-cons_emm <- emmeans(cons_polr, ~ Attribute)
+cons_emm <- emmeans(cons_polr, ~ lobe)
 cons_emm
 pairs(cons_emm)
 ```
@@ -878,15 +795,15 @@ Borderline significant:
 ```{r}
 bronch_jw <- subset(bronch, rater == "JW")
 
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-bronch_jw$Value <- ordered(bronch_jw$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+bronch_jw$score <- ordered(bronch_jw$score, levels = c(0,1,2,3))
 
-bronch_jw$Attribute <- factor(bronch_jw$Attribute, 
+bronch_jw$lobe <- factor(bronch_jw$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 bronch_polr <- polr(
-  Value ~ Attribute, 
+  score ~ lobe, 
   data = bronch_jw, 
   method = "logistic", 
   Hess = TRUE
@@ -899,7 +816,7 @@ summary(bronch_polr)
 brant(bronch_polr)
 
 #set up contrasts to compare lobes
-bronch_emm <- emmeans(bronch_polr, ~ Attribute)
+bronch_emm <- emmeans(bronch_polr, ~ lobe)
 bronch_emm
 pairs(bronch_emm)
 ```
@@ -924,15 +841,15 @@ Significant findings:
 ```{r}
 atel_jw <- subset(atel, rater == "JW")
 
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-atel_jw$Value <- ordered(atel_jw$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+atel_jw$score <- ordered(atel_jw$score, levels = c(0,1,2,3))
 
-atel_jw$Attribute <- factor(atel_jw$Attribute, 
+atel_jw$lobe <- factor(atel_jw$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 atel_polr <- polr(
-  Value ~ Attribute, 
+  score ~ lobe, 
   data = atel_jw, 
   method = "logistic", 
   Hess = TRUE
@@ -945,7 +862,7 @@ summary(atel_polr)
 brant(atel_polr)
 
 #set up contrasts to compare lobes
-atel_emm <- emmeans(atel_polr, ~ Attribute)
+atel_emm <- emmeans(atel_polr, ~ lobe)
 atel_emm
 pairs(atel_emm)
 ```
@@ -969,23 +886,23 @@ Significant findings:
 #subset data for rater JW
 thin_jw <- subset(thin, rater == "JW")
 
-#ensure Value is a factor with levels 0 and 1
-thin_jw$Value <- factor(thin_jw$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+thin_jw$score <- factor(thin_jw$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-thin_jw$Attribute <- factor(thin_jw$Attribute, 
+#make lobe a factor in the desired order
+thin_jw$lobe <- factor(thin_jw$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-thin_glm <- glm(Value ~ Attribute, 
+thin_glm <- glm(score ~ lobe, 
                  data = thin_jw, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(thin_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-thin_emm <- emmeans(thin_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+thin_emm <- emmeans(thin_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(thin_emm)
@@ -1000,23 +917,23 @@ Lobes do not significantly differ
 #subset data for rater JW
 thick_jw <- subset(thick, rater == "JW")
 
-#ensure Value is a factor with levels 0 and 1
-thick_jw$Value <- factor(thick_jw$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+thick_jw$score <- factor(thick_jw$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-thick_jw$Attribute <- factor(thick_jw$Attribute, 
+#make lobe a factor in the desired order
+thick_jw$lobe <- factor(thick_jw$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-thick_glm <- glm(Value ~ Attribute, 
+thick_glm <- glm(score ~ lobe, 
                  data = thick_jw, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(thick_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-thick_emm <- emmeans(thick_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+thick_emm <- emmeans(thick_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(thick_emm)
@@ -1033,15 +950,15 @@ Significant findings:
 ### Tree-in-bud
 
 ```{r}
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-tib$Value <- ordered(tib$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+tib$score <- ordered(tib$score, levels = c(0,1,2,3))
 
-tib$Attribute <- factor(tib$Attribute, 
+tib$lobe <- factor(tib$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 tib_polr <- polr(
-  Value ~ Attribute + rater, 
+  score ~ lobe + rater, 
   data = tib, 
   method = "logistic", 
   Hess = TRUE
@@ -1054,7 +971,7 @@ summary(tib_polr)
 brant(tib_polr)
 
 #set up contrasts to compare lobes
-tib_emm <- emmeans(tib_polr, ~ Attribute)
+tib_emm <- emmeans(tib_polr, ~ lobe)
 tib_emm
 pairs(tib_emm)
 ```
@@ -1073,23 +990,23 @@ LUS vs all other lobes
 ### Large Nodules
 
 ```{r}
-#ensure Value is a factor with levels 0 and 1
-ln$Value <- factor(ln$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+ln$score <- factor(ln$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-ln$Attribute <- factor(ln$Attribute, 
+#make lobe a factor in the desired order
+ln$lobe <- factor(ln$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-ln_glm <- glm(Value ~ Attribute + rater, 
+ln_glm <- glm(score ~ lobe + rater, 
                  data = ln, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(ln_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-ln_emm <- emmeans(ln_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+ln_emm <- emmeans(ln_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(ln_emm)
@@ -1109,15 +1026,15 @@ Significant findings:
 ### Ground-glass Opacities
 
 ```{r}
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-ggo$Value <- ordered(ggo$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+ggo$score <- ordered(ggo$score, levels = c(0,1,2,3))
 
-ggo$Attribute <- factor(ggo$Attribute, 
+ggo$lobe <- factor(ggo$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 ggo_polr <- polr(
-  Value ~ Attribute + rater, 
+  score ~ lobe + rater, 
   data = ggo, 
   method = "logistic", 
   Hess = TRUE
@@ -1130,7 +1047,7 @@ summary(ggo_polr)
 brant(ggo_polr)
 
 #set up contrasts to compare lobes
-ggo_emm <- emmeans(ggo_polr, ~ Attribute)
+ggo_emm <- emmeans(ggo_polr, ~ lobe)
 ggo_emm
 pairs(ggo_emm)
 ```
@@ -1142,15 +1059,15 @@ No significant differences between lobes
 ### Consolidations
 
 ```{r}
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-cons$Value <- ordered(cons$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+cons$score <- ordered(cons$score, levels = c(0,1,2,3))
 
-cons$Attribute <- factor(cons$Attribute, 
+cons$lobe <- factor(cons$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 cons_polr <- polr(
-  Value ~ Attribute + rater, 
+  score ~ lobe + rater, 
   data = cons, 
   method = "logistic", 
   Hess = TRUE
@@ -1163,7 +1080,7 @@ summary(cons_polr)
 brant(cons_polr)
 
 #set up contrasts to compare lobes
-cons_emm <- emmeans(cons_polr, ~ Attribute)
+cons_emm <- emmeans(cons_polr, ~ lobe)
 cons_emm
 pairs(cons_emm)
 ```
@@ -1181,15 +1098,15 @@ Significant findings:
 ### Bronchiectasis
 
 ```{r}
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-bronch$Value <- ordered(bronch$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+bronch$score <- ordered(bronch$score, levels = c(0,1,2,3))
 
-bronch$Attribute <- factor(bronch$Attribute, 
+bronch$lobe <- factor(bronch$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 bronch_polr <- polr(
-  Value ~ Attribute + rater, 
+  score ~ lobe + rater, 
   data = bronch, 
   method = "logistic", 
   Hess = TRUE
@@ -1202,7 +1119,7 @@ summary(bronch_polr)
 brant(bronch_polr)
 
 #set up contrasts to compare lobes
-bronch_emm <- emmeans(bronch_polr, ~ Attribute)
+bronch_emm <- emmeans(bronch_polr, ~ lobe)
 bronch_emm
 pairs(bronch_emm)
 ```
@@ -1226,15 +1143,15 @@ Significant findings:
 ### Atelectasis
 
 ```{r}
-#convert Value to an ordered factor (0 < 1 < 2 < 3)
-atel$Value <- ordered(atel$Value, levels = c(0,1,2,3))
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+atel$score <- ordered(atel$score, levels = c(0,1,2,3))
 
-atel$Attribute <- factor(atel$Attribute, 
+atel$lobe <- factor(atel$lobe, 
                            levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit simple PO model, ignoring REs
 atel_polr <- polr(
-  Value ~ Attribute + rater, 
+  score ~ lobe + rater, 
   data = atel, 
   method = "logistic", 
   Hess = TRUE
@@ -1247,7 +1164,7 @@ summary(atel_polr)
 brant(atel_polr)
 
 #set up contrasts to compare lobes
-atel_emm <- emmeans(atel_polr, ~ Attribute)
+atel_emm <- emmeans(atel_polr, ~ lobe)
 atel_emm
 pairs(atel_emm)
 ```
@@ -1269,23 +1186,23 @@ Significant findings:
 ### Thin Wall Cavity
 
 ```{r}
-#ensure Value is a factor with levels 0 and 1
-thin$Value <- factor(thin$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+thin$score <- factor(thin$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-thin$Attribute <- factor(thin$Attribute, 
+#make lobe a factor in the desired order
+thin$lobe <- factor(thin$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-thin_glm <- glm(Value ~ Attribute + rater, 
+thin_glm <- glm(score ~ lobe + rater, 
                  data = thin, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(thin_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-thin_emm <- emmeans(thin_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+thin_emm <- emmeans(thin_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(thin_emm)
@@ -1297,23 +1214,23 @@ Lobes do not significantly differ
 ### Thick Wall Cavity
 
 ```{r}
-#ensure Value is a factor with levels 0 and 1
-thick$Value <- factor(thick$Value, levels = c(0,1))
+#ensure score is a factor with levels 0 and 1
+thick$score <- factor(thick$score, levels = c(0,1))
 
-#make Attribute a factor in the desired order
-thick$Attribute <- factor(thick$Attribute, 
+#make lobe a factor in the desired order
+thick$lobe <- factor(thick$lobe, 
                              levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
 
 #fit a standard logistic regression model (binary) 
-thick_glm <- glm(Value ~ Attribute + rater, 
+thick_glm <- glm(score ~ lobe + rater, 
                  data = thick, 
                  family = binomial(link = "logit"))
 
 #look at model summary 
 summary(thick_glm)
 
-#obtain estimated means (probabilities of Value=1 by lobe)
-thick_emm <- emmeans(thick_glm, ~ Attribute, type = "response")
+#obtain estimated means (probabilities of score=1 by lobe)
+thick_emm <- emmeans(thick_glm, ~ lobe, type = "response")
 
 #see the pairwise comparisons
 pairs(thick_emm)
