@@ -1,204 +1,96 @@
 /*************************************************************************/
-/* Step 1: Import the JW and VH sheets from the Excel file               */
-/*************************************************************************/
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_TIB
-    dbms=xlsx
-    replace;
-    sheet="JW.TIB.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_TIB
-    dbms=xlsx
-    replace;
-    sheet="VH.TIB.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_LN
-    dbms=xlsx
-    replace;
-    sheet="JW.LN.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_LN
-    dbms=xlsx
-    replace;
-    sheet="VH.LN.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_GGO
-    dbms=xlsx
-    replace;
-    sheet="JW.GGO.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_GGO
-    dbms=xlsx
-    replace;
-    sheet="VH.GGO.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_CONS
-    dbms=xlsx
-    replace;
-    sheet="JW.CONS.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_CONS
-    dbms=xlsx
-    replace;
-    sheet="VH.CONS.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_BRONCH
-    dbms=xlsx
-    replace;
-    sheet="JW.BRONCH.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_BRONCH
-    dbms=xlsx
-    replace;
-    sheet="VH.BRONCH.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_ATEL
-    dbms=xlsx
-    replace;
-    sheet="JW.ATEL.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_ATEL
-    dbms=xlsx
-    replace;
-    sheet="VH.ATEL.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_Thin
-    dbms=xlsx
-    replace;
-    sheet="JW.Thin.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_Thin
-    dbms=xlsx
-    replace;
-    sheet="VH.Thin.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=JW_Thick
-    dbms=xlsx
-    replace;
-    sheet="JW.Thick.Long";
-    getnames=yes;
-run;
-
-proc import datafile="/home/u63545637/NTM/2025.2.4.xlsx"
-    out=VH_Thick
-    dbms=xlsx
-    replace;
-    sheet="VH.Thick.Long";
-    getnames=yes;
-run;
-
-/*************************************************************************/
-/* Step 2: Combine the JW and VH data sets into one, adding a 'rater' var*/
+/* Import the combined rater sheets from the updated Excel file          */
 /*************************************************************************/
 
-data tib;
-    set JW_TIB(in=a) VH_TIB(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+%let filepath = /home/u63545637/NTM/2025.4.2.xlsx;
+
+proc import datafile="&filepath"
+    out=tib
+    dbms=xlsx
+    replace;
+    sheet="tib.long";
+    getnames=yes;
 run;
 
-data ln;
-    set JW_LN(in=a) VH_LN(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=ggo
+    dbms=xlsx
+    replace;
+    sheet="ggo.long";
+    getnames=yes;
 run;
 
-data ggo;
-    set JW_GGO(in=a) VH_GGO(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=cons
+    dbms=xlsx
+    replace;
+    sheet="cons.long";
+    getnames=yes;
 run;
 
-data cons;
-    set JW_CONS(in=a) VH_CONS(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=bronch
+    dbms=xlsx
+    replace;
+    sheet="bronch.long";
+    getnames=yes;
 run;
 
-data bronch;
-    set JW_BRONCH(in=a) VH_BRONCH(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=atel
+    dbms=xlsx
+    replace;
+    sheet="atel.long";
+    getnames=yes;
 run;
 
-data atel;
-    set JW_ATEL(in=a) VH_ATEL(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=ln
+    dbms=xlsx
+    replace;
+    sheet="ln.long";
+    getnames=yes;
 run;
 
-data thin;
-    set JW_Thin(in=a) VH_Thin(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=thin
+    dbms=xlsx
+    replace;
+    sheet="thin.long";
+    getnames=yes;
 run;
 
-data thick;
-    set JW_Thick(in=a) VH_Thick(in=b);
-    if a then rater = "JW";
-    if b then rater = "VH";
+proc import datafile="&filepath"
+    out=thick
+    dbms=xlsx
+    replace;
+    sheet="thick.long";
+    getnames=yes;
 run;
+
 
 /*************************************************************************/
-/* Step 3: Fit the ordinal models with rater as a RANDOM effect          */
+/*         Fit the ordinal models with rater as a RANDOM effect          */
 /*        (plus random intercept for subject)
 /*************************************************************************/
 
 /*************************************************************************/
 /* TREE-IN-BUD                                                           */
 /*************************************************************************/
+proc sort data=tib;
+    by newID;
+run;
+
 proc glimmix data=tib method=quad;
     class Attribute rater;
     
     /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute
+    model Value = Attribute rater
         / dist=multinomial
           link=cumlogit
           solution;
     
-    random intercept rater / subject=newID type=vc;
+    random intercept rater / subject=newID solution;
  
 run;
 
@@ -349,88 +241,56 @@ proc glimmix data=thick method=quad;
 run;
 
 /*************************************************************************/
-/* Pairwise Comparisons                                                  */
+/* pairwise comparisons with output                                      */
 /*************************************************************************/
 
 %MACRO PAIRWISE(DATASET);
-proc glimmix data=&DATASET method=quad;
-    class Attribute rater;
+	/* sort by subject */
+	proc sort data=&DATASET out = SortedData;
+		by newID;
+	run;
 
-    /* Ordinal outcome using a cumulative logit link */
-    model Value = Attribute 
-        / dist=multinomial
-          link=cumlogit
-          solution;
-
-    random intercept rater / subject=newID type=vc;
-
-    /* Pairwise comparisons using ESTIMATE */
-	estimate 'RUL vs. RML' Attribute  0  0  0  0  1 -1 / cl;
-	estimate 'RUL vs. RLL' Attribute  0  0  0  1  0 -1 / cl;
-	estimate 'RUL vs. LUS' Attribute  0  0  1  0  0 -1 / cl;
-	estimate 'RUL vs. LLS' Attribute  0  1  0  0  0 -1 / cl;
-	estimate 'RUL vs. LLL' Attribute  1  0  0  0  0 -1 / cl;
-	
-	estimate 'RML vs. RLL' Attribute  0  0  0  1 -1  0 / cl;
-	estimate 'RML vs. LUS' Attribute  0  0  1  0 -1  0 / cl;
-	estimate 'RML vs. LLS' Attribute  0  1  0  0 -1  0 / cl;
-	estimate 'RML vs. LLL' Attribute  1  0  0  0 -1  0 / cl;
-	estimate 'RML vs. RUL' Attribute  0  0  0  0 -1  1 / cl;
-	
-	estimate 'RLL vs. LUS' Attribute  0  0  1 -1  0  0 / cl;
-	estimate 'RLL vs. LLS' Attribute  0  1  0 -1  0  0 / cl;
-	estimate 'RLL vs. LLL' Attribute  1  0  0 -1  0  0 / cl;
-	
-	estimate 'LUS vs. LLS' Attribute  0  1 -1  0  0  0 / cl;
-	estimate 'LUS vs. LLL' Attribute  1  0 -1  0  0  0 / cl;
-	
-	estimate 'LLS vs. LLL' Attribute  1 -1  0  0  0  0 / cl;
-
-
-
-run;
-%MEND;
-
-%PAIRWISE(tib)
-
-/* pairwise with output */
-
-%MACRO PAIRWISE(DATASET);
-    /* Capture the results from PROC GLIMMIX */
+    /* capture the results from PROC GLIMMIX */
     ods output Estimates=glimmix_results;
 
-    proc glimmix data=&DATASET method=quad;
+    proc glimmix data=SortedData method=quad order = data;
         class Attribute rater;
 
-        /* Ordinal outcome using a cumulative logit link */
-        model Value = Attribute 
+        /* ordinal outcome using a cumulative logit link */
+        model Value = Attribute rater
             / dist=multinomial
               link=cumlogit
               solution;
 
-        random intercept rater / subject=newID type=vc;
+        random intercept rater / subject=newID type=vc solution;
 
         
-        /* Pairwise comparisons using ESTIMATE */
-		estimate 'RUL vs. RML' Attribute  0  0  0  0  1 -1 / cl;
-		estimate 'RUL vs. RLL' Attribute  0  0  0  1  0 -1 / cl;
-		estimate 'RUL vs. LUS' Attribute  0  0  1  0  0 -1 / cl;
-		estimate 'RUL vs. LLS' Attribute  0  1  0  0  0 -1 / cl;
-		estimate 'RUL vs. LLL' Attribute  1  0  0  0  0 -1 / cl;
+        /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
+
+		/* RUL compared to others */
+		estimate 'RUL vs RML' Attribute -1  1  0  0  0  0 / cl;
+		estimate 'RUL vs RLL' Attribute -1  0  1  0  0  0 / cl;
+		estimate 'RUL vs LUS' Attribute -1  0  0  1  0  0 / cl;
+		estimate 'RUL vs LLS' Attribute -1  0  0  0  1  0 / cl;
+		estimate 'RUL vs LLL' Attribute -1  0  0  0  0  1 / cl;
 		
-		estimate 'RML vs. RLL' Attribute  0  0  0  1 -1  0 / cl;
-		estimate 'RML vs. LUS' Attribute  0  0  1  0 -1  0 / cl;
-		estimate 'RML vs. LLS' Attribute  0  1  0  0 -1  0 / cl;
-		estimate 'RML vs. LLL' Attribute  1  0  0  0 -1  0 / cl;
+		/* RML compared to RLL, LUS, LLS, LLL */
+		estimate 'RML vs RLL' Attribute  0  -1 1  0  0  0 / cl;
+		estimate 'RML vs LUS' Attribute  0  -1  0 1  0  0 / cl;
+		estimate 'RML vs LLS' Attribute  0  -1  0  0 1  0 / cl;
+		estimate 'RML vs LLL' Attribute  0  -1  0  0  0 1 / cl;
 		
-		estimate 'RLL vs. LUS' Attribute  0  0  1 -1  0  0 / cl;
-		estimate 'RLL vs. LLS' Attribute  0  1  0 -1  0  0 / cl;
-		estimate 'RLL vs. LLL' Attribute  1  0  0 -1  0  0 / cl;
+		/* RLL compared to LUS, LLS, LLL */
+		estimate 'RLL vs LUS' Attribute  0  0  -1 1  0  0 / cl;
+		estimate 'RLL vs LLS' Attribute  0  0  -1  0 1  0 / cl;
+		estimate 'RLL vs LLL' Attribute  0  0  -1  0  0 1 / cl;
 		
-		estimate 'LUS vs. LLS' Attribute  0  1 -1  0  0  0 / cl;
-		estimate 'LUS vs. LLL' Attribute  1  0 -1  0  0  0 / cl;
+		/* LUS compared to LLS, LLL */
+		estimate 'LUS vs LLS' Attribute  0  0  0  -1 1  0 / cl;
+		estimate 'LUS vs LLL' Attribute  0  0  0  -1  0 1 / cl;
 		
-		estimate 'LLS vs. LLL' Attribute  1 -1  0  0  0  0 / cl;
+		/* LLS compared to LLL */
+		estimate 'LLS vs LLL' Attribute  0  0  0  0  -1 1 / cl;
 
 
     run;
@@ -465,16 +325,20 @@ run;
 /* Pairwise Comparisons for Binary Outcome Models */
 
 /*************************************************************************/
-/* LARGE NODULES with random intercept and rater as random               */
+/* LARGE NODULES with random intercept and rater as random and fixed     */
 /*************************************************************************/
+proc sort data=ln;
+    by newID;
+run;
+
 proc glimmix data=ln method=quad order=data; 
     class Attribute rater;                   
 
-    model Value = Attribute
+    model Value = Attribute 
         / dist=binomial link=logit solution;
-    random intercept rater / subject=newID type=vc;
+    random intercept rater / subject=newID solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl adjust=tukey;
+    lsmeans Attribute / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_ln;
 run;
 
@@ -489,17 +353,21 @@ proc print data=LobeDiffs_ln_sig;
 run;
 
 /*************************************************************************/
-/* THIN WALL CAVITY - Random Intercept, Rater as Fixed Effect            */
+/* THIN WALL CAVITY - Random Intercept, Rater as Fixed and random        */
 /*************************************************************************/
-proc glimmix data=thin method=quad(qpoints=5);
+proc sort data=thin;
+    by newID;
+run;
+
+proc glimmix data=thin method=quad;
     class Attribute rater;
     model Value = Attribute rater
         / dist=binomial
           link=logit
           solution;
-    random intercept / subject=newID type=vc;
+    random intercept rater/ subject=newID solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl adjust=tukey;
+    lsmeans Attribute / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_thin;
 run;
 
@@ -511,15 +379,19 @@ run;
 /*************************************************************************/
 /* THICK WALL CAVITY - Random Intercept, Rater as Fixed                  */
 /*************************************************************************/
+proc sort data=thick;
+    by newID;
+run;
+
 proc glimmix data=thick method=quad;
     class Attribute rater;
     model Value = Attribute rater
         / dist=binomial
           link=logit
           solution;
-    random intercept / subject=newID type=vc;
+    random intercept / subject=newID solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl adjust=tukey;
+    lsmeans Attribute / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_thick;
 run;
 

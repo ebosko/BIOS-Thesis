@@ -29,108 +29,23 @@ This file will be used to compare different models for each CT feature
 
 ## Reading in Data
 
-### Tree-in-bud
-
 ```{r}
-# Read in each rater's sheet
-vh_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.TIB.Long") %>% 
-  mutate(rater = "VH")
+#read in data
+tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "tib.long")
 
-jw_tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.TIB.Long") %>% 
-  mutate(rater = "JW")
+ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ggo.long")
 
-tib <- bind_rows(vh_tib, jw_tib)
-```
+cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "cons.long")
 
-### Large Nodules
+bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "bronch.long")
 
-```{r}
-# Read in each rater's sheet
-vh_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.LN.Long") %>% 
-  mutate(rater = "VH")
+atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "atel.long")
 
-jw_ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.LN.Long") %>% 
-  mutate(rater = "JW")
+ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ln.long")
 
-ln <- bind_rows(vh_ln, jw_ln)
-```
+thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thin.long")
 
-### Ground-glass Opacities
-
-```{r}
-# Read in each rater's sheet
-vh_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.GGO.Long") %>% 
-  mutate(rater = "VH")
-
-jw_ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.GGO.Long") %>% 
-  mutate(rater = "JW")
-
-ggo <- bind_rows(vh_ggo, jw_ggo)
-```
-
-### Consolidations
-
-```{r}
-# Read in each rater's sheet
-vh_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.CONS.Long") %>% 
-  mutate(rater = "VH")
-
-jw_cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.CONS.Long") %>% 
-  mutate(rater = "JW")
-
-cons <- bind_rows(vh_cons, jw_cons)
-```
-
-### Bronchiectasis
-
-```{r}
-# Read in each rater's sheet
-vh_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.BRONCH.Long") %>% 
-  mutate(rater = "VH")
-
-jw_bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.BRONCH.Long") %>% 
-  mutate(rater = "JW")
-
-bronch <- bind_rows(vh_bronch, jw_bronch)
-```
-
-### Atelectasis
-
-```{r}
-# Read in each rater's sheet
-vh_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.ATEL.Long") %>% 
-  mutate(rater = "VH")
-
-jw_atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.ATEL.Long") %>% 
-  mutate(rater = "JW")
-
-atel <- bind_rows(vh_atel, jw_atel)
-```
-
-### Thin-wall Cavity
-
-```{r}
-# Read in each rater's sheet
-vh_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thin.Long") %>% 
-  mutate(rater = "VH")
-
-jw_thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thin.Long") %>% 
-  mutate(rater = "JW")
-
-thin <- bind_rows(vh_thin, jw_thin)
-```
-
-### Thick-wall Cavity
-
-```{r}
-# Read in each rater's sheet
-vh_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "VH.Thick.Long") %>% 
-  mutate(rater = "VH")
-
-jw_thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.2.4.xlsx', sheet = "JW.Thick.Long") %>% 
-  mutate(rater = "JW")
-
-thick <- bind_rows(vh_thick, jw_thick)
+thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
 ```
 
 ## Models
@@ -139,14 +54,14 @@ thick <- bind_rows(vh_thick, jw_thick)
 
 ```{r}
 #make sure everything is in correct format
-tib$Value <- ordered(tib$Value, levels = c(0,1,2,3))
-tib$Attribute <- factor(tib$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-tib$newID <- factor(tib$newID)
+tib$score <- ordered(tib$score, levels = c(0,1,2,3))
+tib$lobe <- factor(tib$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+tib$id <- factor(tib$id)
 tib$rater <- factor(tib$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 tib_mod1 <- clmm(
-  Value ~ Attribute + rater + (1 | newID),
+  score ~ lobe + rater + (1 | id),
   data = tib
 )
 
@@ -155,7 +70,7 @@ summary(tib_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(tib_mod1, ~ Attribute, type = "link")
+emm <- emmeans(tib_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -163,14 +78,14 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-ln$Value <- as.numeric(as.character(ln$Value))
-ln_clean <- ln %>% filter(Value %in% c(0, 1))
-ln$Attribute <- factor(ln$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-ln$newID <- factor(ln$newID)
+ln$score <- as.numeric(as.character(ln$score))
+ln_clean <- ln %>% filter(score %in% c(0, 1))
+ln$lobe <- factor(ln$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+ln$id <- factor(ln$id)
 ln$rater <- factor(ln$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
-ln_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+ln_mod1 <- glmer(score ~ lobe + rater + (1 | id),
                 data = ln_clean,
                 family = binomial(link = "logit"))
 summary(ln_mod1)
@@ -178,7 +93,7 @@ summary(ln_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(ln_mod1, ~ Attribute, type = "link")
+emm <- emmeans(ln_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -186,14 +101,14 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-ggo$Value <- ordered(ggo$Value, levels = c(0,1,2,3))
-ggo$Attribute <- factor(ggo$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-ggo$newID <- factor(ggo$newID)
+ggo$score <- ordered(ggo$score, levels = c(0,1,2,3))
+ggo$lobe <- factor(ggo$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+ggo$id <- factor(ggo$id)
 ggo$rater <- factor(ggo$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 ggo_mod1 <- clmm(
-  Value ~ Attribute + rater + (1 | newID),
+  score ~ lobe + rater + (1 | id),
   data = ggo
 )
 
@@ -202,7 +117,7 @@ summary(ggo_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(ggo_mod1, ~ Attribute, type = "link")
+emm <- emmeans(ggo_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -210,14 +125,14 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-cons$Value <- ordered(cons$Value, levels = c(0,1,2,3))
-cons$Attribute <- factor(cons$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-cons$newID <- factor(cons$newID)
+cons$score <- ordered(cons$score, levels = c(0,1,2,3))
+cons$lobe <- factor(cons$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+cons$id <- factor(cons$id)
 cons$rater <- factor(cons$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 cons_mod1 <- clmm(
-  Value ~ Attribute + rater + (1 | newID),
+  score ~ lobe + rater + (1 | id),
   data = cons
 )
 
@@ -226,7 +141,7 @@ summary(cons_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(cons_mod1, ~ Attribute, type = "link")
+emm <- emmeans(cons_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -234,14 +149,14 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-bronch$Value <- ordered(bronch$Value, levels = c(0,1,2,3))
-bronch$Attribute <- factor(bronch$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-bronch$newID <- factor(bronch$newID)
+bronch$score <- ordered(bronch$score, levels = c(0,1,2,3))
+bronch$lobe <- factor(bronch$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+bronch$id <- factor(bronch$id)
 bronch$rater <- factor(bronch$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 bronch_mod1 <- clmm(
-  Value ~ Attribute + rater + (1 | newID),
+  score ~ lobe + rater + (1 | id),
   data = bronch
 )
 
@@ -250,7 +165,7 @@ summary(bronch_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(bronch_mod1, ~ Attribute, type = "link")
+emm <- emmeans(bronch_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -258,14 +173,14 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-atel$Value <- ordered(atel$Value, levels = c(0,1,2,3))
-atel$Attribute <- factor(atel$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-atel$newID <- factor(atel$newID)
+atel$score <- ordered(atel$score, levels = c(0,1,2,3))
+atel$lobe <- factor(atel$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+atel$id <- factor(atel$id)
 atel$rater <- factor(atel$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
 atel_mod1 <- clmm(
-  Value ~ Attribute + rater + (1 | newID),
+  score ~ lobe + rater + (1 | id),
   data = atel
 )
 
@@ -274,7 +189,7 @@ summary(atel_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(atel_mod1, ~ Attribute, type = "link")
+emm <- emmeans(atel_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
@@ -282,13 +197,13 @@ pairs(emm)
 
 ```{r}
 #make sure everything is in correct format
-thin$Value <- as.numeric(as.character(thin$Value))
-thin$Attribute <- factor(thin$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-thin$newID <- factor(thin$newID)
+thin$score <- as.numeric(as.character(thin$score))
+thin$lobe <- factor(thin$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+thin$id <- factor(thin$id)
 thin$rater <- factor(thin$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
-thin_mod1 <- glmer(Value ~ Attribute  + rater + (1 | newID),
+thin_mod1 <- glmer(score ~ lobe  + rater + (1 | id),
                 data = thin,
                 family = binomial(link = "logit"))
 summary(thin_mod1)
@@ -296,13 +211,13 @@ summary(thin_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(thin_mod1, ~ Attribute, type = "link")
+emm <- emmeans(thin_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
 ```{r}
 #model 2 - lobe as fixed effect, rater as random effect and random int
-thin_mod2 <- glmer(Value ~ Attribute + (1 | newID) + (1 | rater),
+thin_mod2 <- glmer(score ~ lobe + (1 | id) + (1 | rater),
                 data = thin,
                 family = binomial(link = "logit"))
 summary(thin_mod2)
@@ -312,13 +227,13 @@ summary(thin_mod2)
 
 ```{r}
 #make sure everything is in correct format
-thick$Value <- as.numeric(as.character(thick$Value))
-thick$Attribute <- factor(thick$Attribute, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-thick$newID <- factor(thick$newID)
+thick$score <- as.numeric(as.character(thick$score))
+thick$lobe <- factor(thick$lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+thick$id <- factor(thick$id)
 thick$rater <- factor(thick$rater)
 
 #model 1 - lobe and rater as fixed effects and random int
-thick_mod1 <- glmer(Value ~ Attribute + rater + (1 | newID),
+thick_mod1 <- glmer(score ~ lobe + rater + (1 | id),
                 data = thick,
                 family = binomial(link = "logit"))
 summary(thick_mod1)
@@ -326,7 +241,7 @@ summary(thick_mod1)
 
 ```{r}
 #compute pairwise comparisons
-emm <- emmeans(thick_mod1, ~ Attribute, type = "link")
+emm <- emmeans(thick_mod1, ~ lobe, type = "link")
 pairs(emm)
 ```
 
