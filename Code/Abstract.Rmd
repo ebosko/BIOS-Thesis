@@ -1,0 +1,21 @@
+---
+title: "Abstract"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#read in libraries
+library(readxl)
+```
+
+## Read in Data
+
+```{r}
+dat <- read_excel("C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Intro Files/NTM_LD_Radiology mjs.xlsx")
+```

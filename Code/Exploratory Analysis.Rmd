@@ -20,11 +20,9 @@ library(emmeans)
 
 ## Purpose
 
-This file will be used for exploratory analysis: evaluating the spread and distribution of the data, checking proportional odds assumption of simple models without random effects
+This file will be used for exploratory analysis: evaluating the spread and distribution of the data, checking proportional odds assumption of simple models without random effects, generating summary statistics of demographic data
 
 ## Reading in Data
-
-### Tree-in-bud
 
 ```{r}
 #read in data
@@ -43,6 +41,8 @@ ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProc
 thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thin.long")
 
 thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
+
+demo <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
 ```
 
 ## Visualize the Distribution of Scores
@@ -1242,3 +1242,11 @@ Significant findings:
 *RUL - LUS: OR = 4.07 => RUL's odds of disease is 4.07 times that of LUS
 *RUL - LLS: OR = 10.4 => RUL's odds of disease is 10.4 times that of LLS
 *RUL - LLL: OR = 3.68 => RUL's odds of disease is 3.68 times that of LLL
+
+## Demographic Data
+
+```{r}
+table(demo$Sex)
+
+summary(demo)
+```
