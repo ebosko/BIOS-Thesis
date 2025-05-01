@@ -43,6 +43,8 @@ thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataPr
 thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
 
 demo <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
+
+flat <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
 ```
 
 ## Visualize the Distribution of Scores
@@ -107,7 +109,7 @@ tib %>%
   theme_minimal()
 ```
 
-### Large Nodules - See "Questions for Ed" file for discrepancy with VH's "3" rating
+### Large Nodules
 
 ```{r}
 #by rating 
@@ -1248,5 +1250,5 @@ Significant findings:
 ```{r}
 table(demo$Sex)
 
-summary(demo)
+unique()
 ```

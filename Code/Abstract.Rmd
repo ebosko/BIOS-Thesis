@@ -9,13 +9,35 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, warning=F, message=F}
 #read in libraries
 library(readxl)
+library(table1)
 ```
 
-## Read in Data
+## Table 1
 
 ```{r}
-dat <- read_excel("C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Intro Files/NTM_LD_Radiology mjs.xlsx")
+#read in dataset
+demo <- read.csv("C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/demo.csv")
+```
+
+```{r}
+#add labels
+demo$Sex <- factor(
+  demo$Sex,
+  levels = c('F','M'),
+  labels = c("Female", "Male")
+)
+
+demo$CharacterJW <- factor(
+  demo$CharacterJW,
+  levels = c(1,2,3,4),
+  labels = c("NB-C", "NB-S","Fibrocavitary","Unclassified")
+)
+
+#create descriptive table using table1
+table1(~ Age + Sex | CharacterJW, data = demo,
+       caption = "Table 1: Descriptive Statistics by NTM Classification")
+
 ```
