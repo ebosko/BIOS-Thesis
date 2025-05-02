@@ -20,6 +20,14 @@ proc import datafile="&filepath"
     getnames=yes;
 run;
 
+/*need to dichotomize ggo since model no longer fits */
+
+data ggo_bin;
+    set ggo;
+    if score in (1, 2, 3) then score = 1;
+    else if score in (0) then score = 0;
+run;
+
 proc import datafile="&filepath"
     out=cons
     dbms=xlsx
@@ -78,83 +86,99 @@ run;
 /* TREE-IN-BUD                                                           */
 /*************************************************************************/
 proc sort data=tib;
-    by newID;
+    by id;
 run;
 
 proc glimmix data=tib method=quad;
-    class Attribute rater;
+    class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute rater
+    model score = lobe rater
         / dist=multinomial
           link=cumlogit
           solution;
     
-    random intercept rater / subject=newID solution;
+    random intercept rater / subject=id solution;
  
 run;
 
 /*************************************************************************/
 /* GROUND GLASS OPACITIES                                                */
 /*************************************************************************/
-proc glimmix data=ggo method=quad;
-    class Attribute rater;
-    
-    /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute
-        / dist=multinomial
-          link=cumlogit
+proc sort data=ggo_bin;
+    by id;
+run;
+
+proc glimmix data=ggo_bin method=quad;
+    class lobe rater;
+
+    model score = lobe rater
+        / dist=binomial
+          link=logit
           solution;
+
+    random intercept rater / subject=id solution;
     
-    random intercept rater / subject=newID type=vc;
- 
+    
 run;
 
 /*************************************************************************/
 /* CONSOLIDATIONS                                                        */
 /*************************************************************************/
+proc sort data=cons;
+    by id;
+run;
+
 proc glimmix data=cons method=quad;
-    class Attribute rater;
+    class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute
+    model score = lobe rater
         / dist=multinomial
           link=cumlogit
           solution;
     
-    random intercept rater / subject=newID type=vc;
+    random intercept rater / subject=id solution;
  
 run;
 
 /*************************************************************************/
 /* BRONCHIECTASIS                                                        */
 /*************************************************************************/
+proc sort data=bronch;
+    by id;
+run;
+
 proc glimmix data=bronch method=quad;
-    class Attribute rater;
+    class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute
+    model score = lobe rater
         / dist=multinomial
           link=cumlogit
           solution;
     
-    random intercept rater / subject=newID type=vc;
+    random intercept rater / subject=id solution;
  
 run;
 
 /*************************************************************************/
 /* ATELECTASIS                                                           */
 /*************************************************************************/
+proc sort data = atel;
+	by id;
+run;
+
 proc glimmix data=atel method=quad;
-    class Attribute rater;
+    class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
-    model Value = Attribute
+    model score = lobe rater
         / dist=multinomial
           link=cumlogit
           solution;
     
-    random intercept rater / subject=newID type=vc;
+    random intercept / subject=id solution;
  
 run;
 
@@ -166,131 +190,113 @@ run;
 /*************************************************************************/
 /* LARGE NODULES                                                         */
 /*************************************************************************/
+proc sort data=ln;
+    by id;
+run;
 
 proc glimmix data=ln method=quad;
-    class Attribute rater;
+    class lobe rater;
 
-    model Value = Attribute
+    model score = lobe rater
         / dist=binomial
           link=logit
           solution;
 
-    random intercept rater / subject=newID type=vc;
+    random intercept / subject=id solution;
     
-    
+run;
+
+proc freq data=ln;
+    tables score;
 run;
 
 /*************************************************************************/
-/* THIN WALL CAVITY - Random Intercept Only                              */
+/* THIN WALL CAVITY                                                      */
 /*************************************************************************/
+proc sort data=thin;
+    by id;
+run;
 
-proc glimmix data=thin method=laplace;
-    class Attribute rater;
+proc glimmix data=thin method=quad(qpoints=30);
+    class lobe rater;
 
-    model Value = Attribute
+    model score = lobe rater
         / dist=binomial
           link=logit
           solution;
 
-    random intercept / subject=newID type=vc;
+    random intercept / subject=id solution;
 run;
 
 /*************************************************************************/
-/* THIN WALL CAVITY - Random Intercept and Rater Fixed Effect            */
+/* THICK WALL CAVITY                                                     */
 /*************************************************************************/
-
-proc glimmix data=thin method=quad(qpoints=5);
-    class Attribute rater;
-
-    model Value = Attribute rater
-        / dist=binomial
-          link=logit
-          solution;
-
-    random intercept / subject=newID type=vc;
+proc sort data=thick;
+    by id;
 run;
-
-/*************************************************************************/
-/* THICK WALL CAVITY - Random Intercept Only                             */
-/*************************************************************************/
 
 proc glimmix data=thick method=quad;
-    class Attribute rater;
+    class lobe rater;
 
-    model Value = Attribute
+    model score = lobe rater
         / dist=binomial
           link=logit
           solution;
 
-    random intercept / subject=newID type=vc;
+    random intercept / subject=id solution;
 run;
 
 /*************************************************************************/
-/* THICK WALL CAVITY - Random Intercept and Rater Fixed Effect           */
-/*************************************************************************/
-
-proc glimmix data=thick method=quad;
-    class Attribute rater;
-
-    model Value = Attribute rater
-        / dist=binomial
-          link=logit
-          solution;
-
-    random intercept / subject=newID type=vc;
-run;
-
-/*************************************************************************/
-/* pairwise comparisons with output                                      */
+/* pairwise comparisons with output for full ordinal                     */
 /*************************************************************************/
 
 %MACRO PAIRWISE(DATASET);
 	/* sort by subject */
 	proc sort data=&DATASET out = SortedData;
-		by newID;
+		by id;
 	run;
 
     /* capture the results from PROC GLIMMIX */
     ods output Estimates=glimmix_results;
 
     proc glimmix data=SortedData method=quad order = data;
-        class Attribute rater;
+        class lobe rater;
 
         /* ordinal outcome using a cumulative logit link */
-        model Value = Attribute rater
+        model score = lobe rater
             / dist=multinomial
               link=cumlogit
               solution;
 
-        random intercept rater / subject=newID type=vc solution;
+        random intercept rater / subject=id type=vc solution;
 
         
         /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
 
 		/* RUL compared to others */
-		estimate 'RUL vs RML' Attribute -1  1  0  0  0  0 / cl;
-		estimate 'RUL vs RLL' Attribute -1  0  1  0  0  0 / cl;
-		estimate 'RUL vs LUS' Attribute -1  0  0  1  0  0 / cl;
-		estimate 'RUL vs LLS' Attribute -1  0  0  0  1  0 / cl;
-		estimate 'RUL vs LLL' Attribute -1  0  0  0  0  1 / cl;
+		estimate 'RUL vs RML' lobe -1  1  0  0  0  0 / cl;
+		estimate 'RUL vs RLL' lobe -1  0  1  0  0  0 / cl;
+		estimate 'RUL vs LUS' lobe -1  0  0  1  0  0 / cl;
+		estimate 'RUL vs LLS' lobe -1  0  0  0  1  0 / cl;
+		estimate 'RUL vs LLL' lobe -1  0  0  0  0  1 / cl;
 		
 		/* RML compared to RLL, LUS, LLS, LLL */
-		estimate 'RML vs RLL' Attribute  0  -1 1  0  0  0 / cl;
-		estimate 'RML vs LUS' Attribute  0  -1  0 1  0  0 / cl;
-		estimate 'RML vs LLS' Attribute  0  -1  0  0 1  0 / cl;
-		estimate 'RML vs LLL' Attribute  0  -1  0  0  0 1 / cl;
+		estimate 'RML vs RLL' lobe  0  -1  1  0  0  0 / cl;
+		estimate 'RML vs LUS' lobe  0  -1  0  1  0  0 / cl;
+		estimate 'RML vs LLS' lobe  0  -1  0  0  1  0 / cl;
+		estimate 'RML vs LLL' lobe  0  -1  0  0  0  1 / cl;
 		
 		/* RLL compared to LUS, LLS, LLL */
-		estimate 'RLL vs LUS' Attribute  0  0  -1 1  0  0 / cl;
-		estimate 'RLL vs LLS' Attribute  0  0  -1  0 1  0 / cl;
-		estimate 'RLL vs LLL' Attribute  0  0  -1  0  0 1 / cl;
+		estimate 'RLL vs LUS' lobe  0  0  -1  1  0  0 / cl;
+		estimate 'RLL vs LLS' lobe  0  0  -1  0  1  0 / cl;
+		estimate 'RLL vs LLL' lobe  0  0  -1  0  0  1 / cl;
 		
 		/* LUS compared to LLS, LLL */
-		estimate 'LUS vs LLS' Attribute  0  0  0  -1 1  0 / cl;
-		estimate 'LUS vs LLL' Attribute  0  0  0  -1  0 1 / cl;
+		estimate 'LUS vs LLS' lobe  0  0  0  -1  1  0 / cl;
+		estimate 'LUS vs LLL' lobe  0  0  0  -1  0  1 / cl;
 		
 		/* LLS compared to LLL */
-		estimate 'LLS vs LLL' Attribute  0  0  0  0  -1 1 / cl;
+		estimate 'LLS vs LLL' lobe  0  0  0   0 -1  1 / cl;
 
 
     run;
@@ -303,7 +309,7 @@ run;
         if Probt < 0.05; 
         Odds_Ratio = exp(Estimate); 
         keep Label Odds_Ratio Probt; 
-        rename Probt=P_Value Label=Comparison;
+        rename Probt=P_score Label=Comparison;
     run;
 
     /* Print the formatted table */
@@ -311,13 +317,12 @@ run;
         title "Significant Pairwise Comparisons for &DATASET";
         label Comparison="Comparison"
               Odds_Ratio="Exponentiated Estimate (Odds Ratio)"
-              P_Value="P-Value";
+              P_score="P-score";
     run;
 
 %MEND;
 
 %PAIRWISE(tib)
-%PAIRWISE(ggo)
 %PAIRWISE(cons)
 %PAIRWISE(bronch)
 %PAIRWISE(atel)
@@ -328,17 +333,17 @@ run;
 /* LARGE NODULES with random intercept and rater as random and fixed     */
 /*************************************************************************/
 proc sort data=ln;
-    by newID;
+    by id;
 run;
 
 proc glimmix data=ln method=quad order=data; 
-    class Attribute rater;                   
+    class lobe rater;                   
 
-    model Value = Attribute 
+    model score = lobe 
         / dist=binomial link=logit solution;
-    random intercept rater / subject=newID solution type=vc;
+    random intercept rater / subject=id solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl;
+    lsmeans lobe / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_ln;
 run;
 
@@ -349,25 +354,25 @@ run;
 
 proc print data=LobeDiffs_ln_sig;
     title "Significant Pairwise Comparisons of Lobes for Large Nodules";
-    var Attribute _Attribute Estimate OddsRatio AdjP;
+    var lobe _lobe Estimate OddsRatio AdjP;
 run;
 
 /*************************************************************************/
 /* THIN WALL CAVITY - Random Intercept, Rater as Fixed and random        */
 /*************************************************************************/
 proc sort data=thin;
-    by newID;
+    by id;
 run;
 
 proc glimmix data=thin method=quad;
-    class Attribute rater;
-    model Value = Attribute rater
+    class lobe rater;
+    model score = lobe rater
         / dist=binomial
           link=logit
           solution;
-    random intercept rater/ subject=newID solution type=vc;
+    random intercept rater/ subject=id solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl;
+    lsmeans lobe / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_thin;
 run;
 
@@ -380,18 +385,18 @@ run;
 /* THICK WALL CAVITY - Random Intercept, Rater as Fixed                  */
 /*************************************************************************/
 proc sort data=thick;
-    by newID;
+    by id;
 run;
 
 proc glimmix data=thick method=quad;
-    class Attribute rater;
-    model Value = Attribute rater
+    class lobe rater;
+    model score = lobe rater
         / dist=binomial
           link=logit
           solution;
-    random intercept / subject=newID solution type=vc;
+    random intercept / subject=id solution type=vc;
 
-    lsmeans Attribute / ilink diff oddsratio cl;
+    lsmeans lobe / ilink diff oddsratio cl;
     ods output diffs=LobeDiffs_thick;
 run;
 
