@@ -9,7 +9,7 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, warning=F, message=F}
 library(tidyverse)
 library(readxl)
 library(MASS)
@@ -24,7 +24,7 @@ This file will be used for exploratory analysis: evaluating the spread and distr
 
 ## Reading in Data
 
-```{r}
+```{r, warning=F, message=F}
 #read in data
 tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "tib.long")
 
