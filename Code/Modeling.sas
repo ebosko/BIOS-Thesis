@@ -89,7 +89,7 @@ proc sort data=tib;
     by id;
 run;
 
-proc glimmix data=tib method=quad;
+proc glimmix data=tib method=quad order=data;
     class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
@@ -109,7 +109,7 @@ proc sort data=ggo_bin;
     by id;
 run;
 
-proc glimmix data=ggo_bin method=quad;
+proc glimmix data=ggo_bin method=quad order=data;
     class lobe rater;
 
     model score = lobe rater
@@ -129,7 +129,7 @@ proc sort data=cons;
     by id;
 run;
 
-proc glimmix data=cons method=quad;
+proc glimmix data=cons method=quad order=data;
     class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
@@ -149,7 +149,7 @@ proc sort data=bronch;
     by id;
 run;
 
-proc glimmix data=bronch method=quad;
+proc glimmix data=bronch method=quad order=data;
     class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
@@ -169,7 +169,7 @@ proc sort data = atel;
 	by id;
 run;
 
-proc glimmix data=atel method=quad;
+proc glimmix data=atel method=quad order=data;
     class lobe rater;
     
     /* ordinal outcome using a cumulative logit link */
@@ -194,7 +194,7 @@ proc sort data=ln;
     by id;
 run;
 
-proc glimmix data=ln method=quad;
+proc glimmix data=ln method=quad order=data;
     class lobe rater;
 
     model score = lobe rater
@@ -217,7 +217,7 @@ proc sort data=thin;
     by id;
 run;
 
-proc glimmix data=thin method=quad(qpoints=30);
+proc glimmix data=thin method=quad(qpoints=30) order=data;
     class lobe rater;
 
     model score = lobe rater
@@ -235,7 +235,7 @@ proc sort data=thick;
     by id;
 run;
 
-proc glimmix data=thick method=quad;
+proc glimmix data=thick method=quad order=data;
     class lobe rater;
 
     model score = lobe rater
@@ -247,19 +247,22 @@ proc glimmix data=thick method=quad;
 run;
 
 /*************************************************************************/
-/* pairwise comparisons with output for full ordinal                     */
+/* pairwise comparisons with output for full random effects              */
 /*************************************************************************/
 
-%MACRO PAIRWISE(DATASET);
+/**************************************for tib, cons, bronch********************************/
+
+%MACRO PAIRWISE(DATASET, alpha = 0.05);
 	/* sort by subject */
 	proc sort data=&DATASET out = SortedData;
 		by id;
 	run;
 
     /* capture the results from PROC GLIMMIX */
-    ods output Estimates=glimmix_results;
+    ods select none;
+   	ods output Estimates = _rawEst_; 
 
-    proc glimmix data=SortedData method=quad order = data;
+    proc glimmix data=SortedData method=quad order=data;
         class lobe rater;
 
         /* ordinal outcome using a cumulative logit link */
@@ -268,7 +271,7 @@ run;
               link=cumlogit
               solution;
 
-        random intercept rater / subject=id type=vc solution;
+        random intercept rater / subject=id solution;
 
         
         /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
@@ -300,32 +303,305 @@ run;
 
 
     run;
-
+	ods select all;
     ods output close;
 
-    /* Process the results: Extract only significant comparisons */
-    data significant_results;
-        set glimmix_results;
-        if Probt < 0.05; 
-        Odds_Ratio = exp(Estimate); 
-        keep Label Odds_Ratio Probt; 
-        rename Probt=P_score Label=Comparison;
-    run;
+    /* Keep label, estimate, and raw p‑value */
+   data _pvals_;
+      set _rawEst_(keep=Label Estimate Lower Upper Probt);
+      where Label ne '';                 /* keep only ESTIMATE rows */
+      Comparison = Label;
+      raw_p      = Probt;
+      
+      Odds_Ratio=exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+   run;
 
-    /* Print the formatted table */
-    proc print data=significant_results label noobs;
-        title "Significant Pairwise Comparisons for &DATASET";
-        label Comparison="Comparison"
-              Odds_Ratio="Exponentiated Estimate (Odds Ratio)"
-              P_score="P-score";
-    run;
+   /*Benjamini–Hochberg adjustment */
+   proc sort data=_pvals_;  by raw_p; run;
 
-%MEND;
+   data _bh1_;
+      set _pvals_ nobs=m;
+      by raw_p;
+      rank + 1;
+      initial_bh = raw_p * m / rank;     /* p_(i) * m / i           */
+   run;
+
+   /* enforce monotone non‑decreasing rule */
+   proc sort data=_bh1_;  by descending raw_p; run;
+
+   data _bh2_;
+      set _bh1_;
+      retain bh_adj 1;                   /* running minimum         */
+      bh_adj = min(bh_adj, initial_bh);
+   run;
+
+   proc sort data=_bh2_;  by Comparison; run;
+
+   /*final table and significance flag*/
+   data final_FDR;
+      set _bh2_;
+      Odds_Ratio = exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+      FDR_sig    = (bh_adj < &alpha);
+      label raw_p   = 'Unadjusted p'
+            bh_adj  = 'BH‑adjusted p'
+            Odds_Ratio = 'Exp(Estimate)'
+            OR_LowerCI='Lower 95% CI (OR)'
+      		OR_UpperCI='Upper 95% CI (OR)'
+      		FDR_sig = 'Significant?';
+   run;
+   
+   proc sort data=final_FDR; by bh_adj; run;
+
+   title "Benjamini–Hochberg FDR‑adjusted pairwise comparisons (&dataset)";
+   proc print data=final_FDR noobs label;
+      var Comparison Odds_Ratio OR_LowerCI OR_UpperCI raw_p bh_adj FDR_sig;
+   run;
+
+%mend PAIRWISE;
 
 %PAIRWISE(tib)
 %PAIRWISE(cons)
 %PAIRWISE(bronch)
-%PAIRWISE(atel)
+
+/******************** for ggo ************************************/
+
+%MACRO PAIRWISE_ggo(DATASET, alpha = 0.05);
+	/* sort by subject */
+	proc sort data=&DATASET out = SortedData;
+		by id;
+	run;
+	
+	ods exclude all;
+		ods output Estimates = _rawEst_;
+	ods select ClassLevels;
+
+
+    proc glimmix data=SortedData method=quad order=data;
+        class lobe rater;
+
+        /* binary outcome using a logit link */
+        model score = lobe rater
+            / dist=binomial
+              link=logit
+              solution;
+
+        random intercept rater / subject=id solution;
+
+        
+        /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
+
+		/* RUL compared to others */
+		estimate 'RUL vs RML' lobe 1  -1  0  0  0  0 / cl;
+		estimate 'RUL vs RLL' lobe 1  0  -1  0  0  0 / cl;
+		estimate 'RUL vs LUS' lobe 1  0  0  -1  0  0 / cl;
+		estimate 'RUL vs LLS' lobe 1  0  0  0  -1  0 / cl;
+		estimate 'RUL vs LLL' lobe 1  0  0  0  0  -1 / cl;
+		
+		/* RML compared to RLL, LUS, LLS, LLL */
+		estimate 'RML vs RLL' lobe  0  1  -1  0  0  0 / cl;
+		estimate 'RML vs LUS' lobe  0  1  0  -1  0  0 / cl;
+		estimate 'RML vs LLS' lobe  0  1  0  0  -1  0 / cl;
+		estimate 'RML vs LLL' lobe  0  1  0  0  0  -1 / cl;
+		
+		/* RLL compared to LUS, LLS, LLL */
+		estimate 'RLL vs LUS' lobe  0  0  1  -1  0  0 / cl;
+		estimate 'RLL vs LLS' lobe  0  0  1  0  -1  0 / cl;
+		estimate 'RLL vs LLL' lobe  0  0  1  0  0  -1 / cl;
+		
+		/* LUS compared to LLS, LLL */
+		estimate 'LUS vs LLS' lobe  0  0  0  1  -1  0 / cl;
+		estimate 'LUS vs LLL' lobe  0  0  0  1  0  -1 / cl;
+		
+		/* LLS compared to LLL */
+		estimate 'LLS vs LLL' lobe  0  0  0   0 1  -1 / cl;
+
+
+    run;
+
+    /* Keep label, estimate, and raw p‑value */
+   data _pvals_;
+      set _rawEst_(keep=Label Estimate Lower Upper Probt);
+      where Label ne '';                 /* keep only ESTIMATE rows */
+      Comparison = Label;
+      raw_p      = Probt;
+      
+      Odds_Ratio=exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+   run;
+
+   /*Benjamini–Hochberg adjustment */
+   proc sort data=_pvals_;  by raw_p; run;
+
+   data _bh1_;
+      set _pvals_ nobs=m;
+      by raw_p;
+      rank + 1;
+      initial_bh = raw_p * m / rank;     /* p_(i) * m / i           */
+   run;
+
+   /* enforce monotone non‑decreasing rule */
+   proc sort data=_bh1_;  by descending raw_p; run;
+
+   data _bh2_;
+      set _bh1_;
+      retain bh_adj 1;                   /* running minimum         */
+      bh_adj = min(bh_adj, initial_bh);
+   run;
+
+   proc sort data=_bh2_;  by Comparison; run;
+
+   /*final table and significance flag*/
+   data final_FDR;
+      set _bh2_;
+  
+      FDR_sig    = (bh_adj < &alpha);
+      label raw_p   = 'Unadjusted p'
+            bh_adj  = 'BH‑adjusted p'
+            Odds_Ratio = 'Exp(Estimate)'
+            OR_LowerCI='Lower 95% CI (OR)'
+      		OR_UpperCI='Upper 95% CI (OR)'
+      		FDR_sig = 'Significant?';
+   run;
+   
+   proc sort data=final_FDR; by bh_adj; run;
+
+   title "Benjamini–Hochberg FDR‑adjusted pairwise comparisons (&dataset)";
+   proc print data=final_FDR noobs label;
+      var Comparison Odds_Ratio OR_LowerCI OR_UpperCI raw_p bh_adj FDR_sig;
+   run;
+
+%mend PAIRWISE_ggo;
+
+%PAIRWISE_ggo(ggo_bin)
+
+/*************************************************************************/
+/* pairwise comparisons with output for random subject only/bin. variable*/
+/*************************************************************************/
+
+/**************************************for atel, ln, thick********************************/
+
+%MACRO PAIRWISE_reduced(DATASET, alpha = 0.05);
+	/* sort by subject */
+	proc sort data=&DATASET out = SortedData;
+		by id;
+	run;
+
+    /* capture the results from PROC GLIMMIX */
+    ods exclude all;
+    	ods output Estimates = _rawEst_;
+   	ods select ClassLevels; 
+
+    proc glimmix data=SortedData method=quad(qpoints=30) order=data;
+        class lobe rater;
+
+        /* binary outcome using a logit link */
+        model score = lobe rater
+            / dist=binomial
+              link=logit
+              solution;
+
+        random intercept / subject=id solution;
+
+        
+        /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
+
+		/* RUL compared to others */
+		estimate 'RUL vs RML' lobe 1  -1  0  0  0  0 / cl;
+		estimate 'RUL vs RLL' lobe 1  0  -1  0  0  0 / cl;
+		estimate 'RUL vs LUS' lobe 1  0  0  -1  0  0 / cl;
+		estimate 'RUL vs LLS' lobe 1  0  0  0  -1  0 / cl;
+		estimate 'RUL vs LLL' lobe 1  0  0  0  0  -1 / cl;
+		
+		/* RML compared to RLL, LUS, LLS, LLL */
+		estimate 'RML vs RLL' lobe  0  1  -1  0  0  0 / cl;
+		estimate 'RML vs LUS' lobe  0  1  0  -1  0  0 / cl;
+		estimate 'RML vs LLS' lobe  0  1  0  0  -1  0 / cl;
+		estimate 'RML vs LLL' lobe  0  1  0  0  0  -1 / cl;
+		
+		/* RLL compared to LUS, LLS, LLL */
+		estimate 'RLL vs LUS' lobe  0  0  1  -1  0  0 / cl;
+		estimate 'RLL vs LLS' lobe  0  0  1  0  -1  0 / cl;
+		estimate 'RLL vs LLL' lobe  0  0  1  0  0  -1 / cl;
+		
+		/* LUS compared to LLS, LLL */
+		estimate 'LUS vs LLS' lobe  0  0  0  1  -1  0 / cl;
+		estimate 'LUS vs LLL' lobe  0  0  0  1  0  -1 / cl;
+		
+		/* LLS compared to LLL */
+		estimate 'LLS vs LLL' lobe  0  0  0   0 1  -1 / cl;
+
+
+    run;
+	ods output close;
+    	ods select all;
+
+    /* Keep label, estimate, and raw p‑value */
+   data _pvals_;
+      set _rawEst_(keep=Label Estimate Lower Upper Probt);
+      where Label ne '';                 /* keep only ESTIMATE rows */
+      Comparison = Label;
+      raw_p      = Probt;
+      
+      Odds_Ratio=exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+   run;
+
+   /*Benjamini–Hochberg adjustment */
+   proc sort data=_pvals_;  by raw_p; run;
+
+   data _bh1_;
+      set _pvals_ nobs=m;
+      by raw_p;
+      rank + 1;
+      initial_bh = raw_p * m / rank;     /* p_(i) * m / i           */
+   run;
+
+   /* enforce monotone non‑decreasing rule */
+   proc sort data=_bh1_;  by descending raw_p; run;
+
+   data _bh2_;
+      set _bh1_;
+      retain bh_adj 1;                   /* running minimum         */
+      bh_adj = min(bh_adj, initial_bh);
+   run;
+
+   proc sort data=_bh2_;  by Comparison; run;
+
+   /*final table and significance flag*/
+   data final_FDR;
+      set _bh2_;
+      FDR_sig    = (bh_adj < &alpha);
+      label raw_p   = 'Unadjusted p'
+            bh_adj  = 'BH‑adjusted p'
+            Odds_Ratio = 'Exp(Estimate)'
+            OR_LowerCI='Lower 95% CI (OR)'
+      		OR_UpperCI='Upper 95% CI (OR)'
+      		FDR_sig = 'Significant?';
+   run;
+   
+   proc sort data=final_FDR; by bh_adj; run;
+
+   title "Benjamini–Hochberg FDR‑adjusted pairwise comparisons (&dataset)";
+   proc print data=final_FDR noobs label;
+      var Comparison Odds_Ratio OR_LowerCI OR_UpperCI raw_p bh_adj FDR_sig;
+   run;
+
+%mend PAIRWISE_reduced;
+
+%PAIRWISE_reduced(atel)
+%PAIRWISE_reduced(ln)
+%PAIRWISE_reduced(thick)
+%PAIRWISE_reduced(thin) /* change qpoints to 30 to fit this*/
+
+
+
+
 
 /* Pairwise Comparisons for Binary Outcome Models */
 
@@ -404,3 +680,206 @@ data SigDiffs_thick;
     set LobeDiffs_thick;
     where probt < 0.05;
 run;
+
+/**************************************************************************************************/
+proc sort data=ggo_bin;
+		by id;
+	run;
+
+
+proc glimmix data=ggo_bin method=quad order=data;
+    class lobe rater;
+
+    /* ordinal outcome using a cumulative logit link */
+    model score = lobe rater
+        / dist=binomial
+          link=logit
+          solution;
+
+    random intercept rater / subject=id type=vc solution;
+
+    
+    /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
+
+	/* RUL compared to others */
+	estimate 'RUL vs RML' lobe -1  1  0  0  0  0 / cl;
+	estimate 'RUL vs RLL' lobe -1  0  1  0  0  0 / cl;
+	estimate 'RUL vs LUS' lobe -1  0  0  1  0  0 / cl;
+	estimate 'RUL vs LLS' lobe -1  0  0  0  1  0 / cl;
+	estimate 'RUL vs LLL' lobe -1  0  0  0  0  1 / cl;
+	
+	/* RML compared to RLL, LUS, LLS, LLL */
+	estimate 'RML vs RLL' lobe  0  -1  1  0  0  0 / cl;
+	estimate 'RML vs LUS' lobe  0  -1  0  1  0  0 / cl;
+	estimate 'RML vs LLS' lobe  0  -1  0  0  1  0 / cl;
+	estimate 'RML vs LLL' lobe  0  -1  0  0  0  1 / cl;
+	
+	/* RLL compared to LUS, LLS, LLL */
+	estimate 'RLL vs LUS' lobe  0  0  -1  1  0  0 / cl;
+	estimate 'RLL vs LLS' lobe  0  0  -1  0  1  0 / cl;
+	estimate 'RLL vs LLL' lobe  0  0  -1  0  0  1 / cl;
+	
+	/* LUS compared to LLS, LLL */
+	estimate 'LUS vs LLS' lobe  0  0  0  -1  1  0 / cl;
+	estimate 'LUS vs LLL' lobe  0  0  0  -1  0  1 / cl;
+	
+	/* LLS compared to LLL */
+	estimate 'LLS vs LLL' lobe  0  0  0   0 -1  1 / cl;
+
+
+run;
+
+proc glimmix data=ggo_bin method=quad order=data;
+    class lobe rater;
+
+    model score = lobe rater
+        / dist=binomial
+          link=logit
+          solution;
+
+    random intercept rater / subject=id type=vc solution;
+
+    /* All pairwise comparisons among lobe levels */
+    lsmeans lobe / diff oddsratio cl;
+    ods output diffs=LobeDiffs_ggo;   /* capture the pairwise table */
+
+run;
+
+/* Keep one direction only (e.g., A vs. B, not B vs. A) */
+data LobeDiffs_ggo_unique;
+    set LobeDiffs_ggo;
+    if lobe < _lobe; /* keep only one of each symmetric pair */
+run;
+
+proc print data=LobeDiffs_ggo_unique label noobs;
+    var lobe _lobe Estimate StdErr Probt OddsRatio LowerOR UpperOR;
+    label lobe = "Lobe 1"
+          _lobe = "Lobe 2"
+          Estimate = "Log Odds Ratio"
+          Probt = "P-value"
+          OddsRatio = "Odds Ratio"
+          LowerOR = "Lower 95% CI"
+          UpperOR = "Upper 95% CI";
+run;
+
+
+
+
+/***************** non-random rater models for those that fit random rater *****************/
+
+%MACRO PAIRWISE_reduced2(DATASET, alpha = 0.05);
+	/* sort by subject */
+	proc sort data=&DATASET out = SortedData;
+		by id;
+	run;
+
+    /* capture the results from PROC GLIMMIX */
+    ods exclude all;
+    	ods output Estimates = _rawEst_;
+   	ods select ClassLevels; 
+
+    proc glimmix data=SortedData method=quad order=data;
+        class lobe rater;
+
+        /* ordinal outcome using a cumulative logit link */
+        model score = lobe rater
+            / dist=multinomial
+              link=cumlogit
+              solution;
+
+        random intercept / subject=id solution;
+
+        
+        /* Columns: RUL   RML   RLL   LUS   LLS   LLL */
+
+		/* RUL compared to others */
+		estimate 'RUL vs RML' lobe -1  1  0  0  0  0 / cl;
+		estimate 'RUL vs RLL' lobe -1  0  1  0  0  0 / cl;
+		estimate 'RUL vs LUS' lobe -1  0  0  1  0  0 / cl;
+		estimate 'RUL vs LLS' lobe -1  0  0  0  1  0 / cl;
+		estimate 'RUL vs LLL' lobe -1  0  0  0  0  1 / cl;
+		
+		/* RML compared to RLL, LUS, LLS, LLL */
+		estimate 'RML vs RLL' lobe  0  -1  1  0  0  0 / cl;
+		estimate 'RML vs LUS' lobe  0  -1  0  1  0  0 / cl;
+		estimate 'RML vs LLS' lobe  0  -1  0  0  1  0 / cl;
+		estimate 'RML vs LLL' lobe  0  -1  0  0  0  1 / cl;
+		
+		/* RLL compared to LUS, LLS, LLL */
+		estimate 'RLL vs LUS' lobe  0  0  -1  1  0  0 / cl;
+		estimate 'RLL vs LLS' lobe  0  0  -1  0  1  0 / cl;
+		estimate 'RLL vs LLL' lobe  0  0  -1  0  0  1 / cl;
+		
+		/* LUS compared to LLS, LLL */
+		estimate 'LUS vs LLS' lobe  0  0  0  -1  1  0 / cl;
+		estimate 'LUS vs LLL' lobe  0  0  0  -1  0  1 / cl;
+		
+		/* LLS compared to LLL */
+		estimate 'LLS vs LLL' lobe  0  0  0   0 -1  1 / cl;
+
+
+    run;
+	
+    ods output close;
+    	ods select all;
+
+    /* Keep label, estimate, and raw p‑value */
+   data _pvals_;
+      set _rawEst_(keep=Label Estimate Lower Upper Probt);
+      where Label ne '';                 /* keep only ESTIMATE rows */
+      Comparison = Label;
+      raw_p      = Probt;
+      
+      Odds_Ratio=exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+   run;
+
+   /*Benjamini–Hochberg adjustment */
+   proc sort data=_pvals_;  by raw_p; run;
+
+   data _bh1_;
+      set _pvals_ nobs=m;
+      by raw_p;
+      rank + 1;
+      initial_bh = raw_p * m / rank;     /* p_(i) * m / i           */
+   run;
+
+   /* enforce monotone non‑decreasing rule */
+   proc sort data=_bh1_;  by descending raw_p; run;
+
+   data _bh2_;
+      set _bh1_;
+      retain bh_adj 1;                   /* running minimum         */
+      bh_adj = min(bh_adj, initial_bh);
+   run;
+
+   proc sort data=_bh2_;  by Comparison; run;
+
+   /*final table and significance flag*/
+   data final_FDR;
+      set _bh2_;
+      Odds_Ratio = exp(Estimate);
+      OR_LowerCI=exp(Lower);
+      OR_UpperCI=exp(Upper);
+      FDR_sig    = (bh_adj < &alpha);
+      label raw_p   = 'Unadjusted p'
+            bh_adj  = 'BH‑adjusted p'
+            Odds_Ratio = 'Exp(Estimate)'
+            OR_LowerCI='Lower 95% CI (OR)'
+      		OR_UpperCI='Upper 95% CI (OR)'
+      		FDR_sig = 'Significant?';
+   run;
+   
+   proc sort data=final_FDR; by bh_adj; run;
+
+   title "Benjamini–Hochberg FDR‑adjusted pairwise comparisons (&dataset)";
+   proc print data=final_FDR noobs label;
+      var Comparison Odds_Ratio OR_LowerCI OR_UpperCI raw_p bh_adj FDR_sig;
+   run;
+
+%mend PAIRWISE_reduced2;
+
+%PAIRWISE_reduced2(tib)
+%PAIRWISE_reduced2(cons)
+%PAIRWISE_reduced2(bronch)
