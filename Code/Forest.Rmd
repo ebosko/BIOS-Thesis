@@ -1,0 +1,76 @@
+---
+title: "Forest"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load in libraries and data
+
+```{r}
+library(readxl)
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons'
+
+tib <- file.path(path, 'MainSASExcel/Pairwise_Results_tib.xlsx')
+forest_data_tib <- read_excel(tib, sheet="tib")
+```
+
+## TIB
+
+```{r}
+forest_data_tib <- forest_data_tib %>%
+  mutate(
+    Comparison = factor(Comparison, levels = rev(unique(Comparison))), # Keeps your original y-axis ordering
+    FDR_sig_factor = factor(FDR_sig, levels = c(0, 1), labels = c("Not Significant", "Significant")) # Create a factor for color
+  )
+
+plot_title_tib <- "Forest Plot of Pairwise Lobe Comparisons - TIB"
+
+# Define some sensible breaks for the log scale x-axis
+# You might want to adjust these based on the range of your Odds_Ratio values
+# Common choices: 0.1, 0.25, 0.5, 1, 2, 4, 10
+# Let's try a simple set, ggplot will only show those within the data range
+simple_log_breaks <- c(0.1, 0.2, 0.5, 1, 2, 5, 10) # Add or remove values as needed
+
+p_forest_tib <- ggplot(forest_data_tib, aes(x = Odds_Ratio, y = Comparison)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "grey60", linewidth = 0.5) +
+  geom_errorbarh(aes(xmin = OR_LowerCI, xmax = OR_UpperCI), height = 0.25, linewidth = 0.5, color = "gray20") +
+  # Map the 'color' aesthetic to your significance factor
+  geom_point(aes(color = FDR_sig_factor), shape = 15, size = 3) + # Increased size slightly for better color visibility
+  scale_x_log10(
+    breaks = simple_log_breaks, # Use the simpler, direct numeric breaks
+    labels = scales::label_number(accuracy = 0.1, trim = TRUE) # Format numbers (e.g., 0.5, 1.0, 2.5)
+    # Alternative simple labels: labels = as.character(simple_log_breaks) - but might not look as good if breaks are auto-filtered
+  ) +
+  # Define the colors for significant and not significant
+  scale_color_manual(
+    name = "Significance", # Legend title
+    values = c("Not Significant" = "blue4", "Significant" = "red3") # Choose your colors
+  ) +
+  labs(
+    title = plot_title_tib,
+    x = "Odds Ratio (95% CI)",
+    y = "Comparison"
+    # color = "FDR Significance" # Legend title can also be set here
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    axis.text.y = element_text(size = 10),
+    axis.title.x = element_text(margin = margin(t = 10)),
+    plot.title = element_text(hjust = 0.5, face = "bold", margin = margin(b = 15)),
+    legend.position = "top" # Or "bottom", "right", "left", or remove legend with "none"
+  )
+
+print(p_forest_tib)
+```

@@ -52,6 +52,13 @@ flat <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/
 ### Tree-in-bud
 
 ```{r}
+score_colors_new <- c(
+  "3" = "#E34A33",  # Orange-Red for Score 3
+  "2" = "#3B9142",  # Green for Score 2
+  "1" = "#5EC9C2",  # Light Blue for Score 1
+  "0" = "#BE64AC"   # Purple for Score 0
+)
+
 #by rating 
 tib %>%
   group_by(rater, score) %>%
@@ -71,9 +78,11 @@ tib %>%
   mutate(prop = n / sum(n))
 
 tib %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of TIB Ratings by Lobe',
     x='Lobe',
@@ -131,7 +140,8 @@ ln %>%
   mutate(prop = n / sum(n))
 
 ln %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -191,9 +201,11 @@ ggo %>%
   mutate(prop = n / sum(n))
 
 ggo %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of GGO Ratings by Lobe',
     x='Lobe',
@@ -251,9 +263,11 @@ cons %>%
   mutate(prop = n / sum(n))
 
 cons %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Consolidation Ratings by Lobe',
     x='Lobe',
@@ -311,9 +325,11 @@ bronch %>%
   mutate(prop = n / sum(n))
 
 bronch %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Bronchiectasis Ratings by Lobe',
     x='Lobe',
@@ -371,9 +387,11 @@ atel %>%
   mutate(prop = n / sum(n))
 
 atel %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Atelectasis Ratings by Lobe',
     x='Lobe',
@@ -431,7 +449,8 @@ thin %>%
   mutate(prop = n / sum(n))
 
 thin %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -491,7 +510,8 @@ thick %>%
   mutate(prop = n / sum(n))
 
 thick %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -635,7 +655,7 @@ ggplot(ordinal_all, aes(x = rater, y = score, fill = rater)) +
 
 ```
 
-## Simple Models without Random Effects; Lobe as only Fixed Effect
+## Simple Models without Random Effects; Lobe as Fixed Effect
 
 ### Tree-in-bud
 
@@ -972,6 +992,9 @@ summary(tib_polr)
 #check the proportional odds assumption with the brant test
 brant(tib_polr)
 
+print("AIC:")
+AIC(tib_polr)
+
 #set up contrasts to compare lobes
 tib_emm <- emmeans(tib_polr, ~ lobe)
 tib_emm
@@ -1245,10 +1268,3 @@ Significant findings:
 *RUL - LLS: OR = 10.4 => RUL's odds of disease is 10.4 times that of LLS
 *RUL - LLL: OR = 3.68 => RUL's odds of disease is 3.68 times that of LLL
 
-## Demographic Data
-
-```{r}
-table(demo$Sex)
-
-unique()
-```
