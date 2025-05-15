@@ -1,0 +1,145 @@
+---
+title: "PO Exploration"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(readxl)
+library(MASS)
+library(ggplot2)
+library(brant)
+library(emmeans)
+library(ordinal)
+```
+
+## Reading in Data
+
+```{r, warning=F, message=F}
+#read in data
+tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "tib.long")
+
+ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ggo.long")
+
+cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "cons.long")
+
+bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "bronch.long")
+
+atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "atel.long")
+
+ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ln.long")
+
+thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thin.long")
+
+thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
+
+demo <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
+
+flat <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
+```
+
+```{r}
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+tib$score <- ordered(tib$score, levels = c(0,1,2,3))
+
+tib$lobe <- factor(tib$lobe, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+tib$id <- factor(tib$id)
+
+
+ctrl <- clmm2.control(method = "nlminb",
+                      maxIter = 10000)
+
+tib_npo <- clmm2(score ~ 1,
+               random   = id,
+               nominal  = ~ lobe + rater,
+               data     = tib,
+               link     = "logistic",
+               Hess     = TRUE,
+               control  = ctrl)
+```
+
+```{r}
+summary(tib_npo)
+```
+
+```{r}
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+cons$score <- ordered(cons$score, levels = c(0,1,2,3))
+
+cons$lobe <- factor(cons$lobe, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+cons$id <- factor(cons$id)
+
+
+ctrl <- clmm2.control(method = "nlminb",
+                      maxIter = 10000)
+
+cons_npo <- clmm2(score ~ rater,
+               random   = id,
+               nominal  = ~ lobe,
+               data     = cons,
+               link     = "logistic",
+               Hess     = TRUE,
+               control  = ctrl)
+```
+
+```{r}
+summary(cons_npo)
+```
+
+```{r}
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+bronch$score <- ordered(bronch$score, levels = c(0,1,2,3))
+
+bronch$lobe <- factor(bronch$lobe, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+bronch$id <- factor(bronch$id)
+
+
+ctrl <- clmm2.control(method = "nlminb",
+                      maxIter = 10000)
+
+bronch_npo <- clmm2(score ~ 1,
+               random   = id,
+               nominal  = ~ lobe + rater,
+               data     = bronch,
+               link     = "logistic",
+               Hess     = TRUE,
+               control  = ctrl)
+```
+
+```{r}
+summary(bronch_npo)
+```
+
+```{r}
+#convert score to an ordered factor (0 < 1 < 2 < 3)
+atel$score <- ordered(atel$score, levels = c(0,1,2,3))
+
+atel$lobe <- factor(atel$lobe, 
+                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
+atel$id <- factor(atel$id)
+
+
+ctrl <- clmm2.control(method = "nlminb",
+                      maxIter = 10000)
+
+atel_npo <- clmm2(score ~ 1,
+               random   = id,
+               nominal  = ~ lobe + rater,
+               data     = atel,
+               link     = "logistic",
+               Hess     = TRUE,
+               control  = ctrl)
+```
+
+```{r}
+summary(atel_npo)
+```
