@@ -56,7 +56,7 @@ score_colors_new <- c(
   "3" = "#E34A33",  # Orange-Red for Score 3
   "2" = "#3B9142",  # Green for Score 2
   "1" = "#5EC9C2",  # Light Blue for Score 1
-  "0" = "#BE64AC"   # Purple for Score 0
+  "0" = "white"   # white for Score 0
 )
 
 #by rating 
@@ -81,7 +81,7 @@ tib %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack') + 
+  geom_bar(position = 'stack', color = 'black') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of TIB Ratings by Lobe',
@@ -204,7 +204,7 @@ ggo %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack') + 
+  geom_bar(position = 'stack', color = 'black') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of GGO Ratings by Lobe',
@@ -266,7 +266,7 @@ cons %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack') + 
+  geom_bar(position = 'stack', color = 'black') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Consolidation Ratings by Lobe',
@@ -328,7 +328,7 @@ bronch %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack') + 
+  geom_bar(position = 'stack', color = 'black') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Bronchiectasis Ratings by Lobe',
@@ -390,7 +390,7 @@ atel %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack') + 
+  geom_bar(position = 'stack', color = 'black') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Atelectasis Ratings by Lobe',
@@ -955,4 +955,3 @@ Significant findings:
 *RUL - LUS: OR = 4.07 => RUL's odds of disease is 4.07 times that of LUS
 *RUL - LLS: OR = 10.4 => RUL's odds of disease is 10.4 times that of LLS
 *RUL - LLL: OR = 3.68 => RUL's odds of disease is 3.68 times that of LLL
-
