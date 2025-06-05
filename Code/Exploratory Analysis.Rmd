@@ -955,3 +955,81 @@ Significant findings:
 *RUL - LUS: OR = 4.07 => RUL's odds of disease is 4.07 times that of LUS
 *RUL - LLS: OR = 10.4 => RUL's odds of disease is 10.4 times that of LLS
 *RUL - LLL: OR = 3.68 => RUL's odds of disease is 3.68 times that of LLL
+
+## ICC Calculations
+
+### With Latent Variance
+
+```{r}
+#define function
+ICC_f <- function(T1, T2, VarT1, VarT2, CovT1T2, c=(pi^2)/3){
+  denom <- (T1+T2+c)
+  estimate <- T1/(denom)
+  partial1 <- (T2+c)/(denom^2)
+  partial2 <- (-T1)/(denom^2)
+  
+  var_est <- (partial1^2 * VarT1) + (partial2^2 * VarT2) + (2*partial1*partial2*CovT1T2)
+  se_est <- sqrt(var_est)
+  
+  ci_lower <- estimate - (1.96*se_est)
+  ci_upper <- estimate + (1.96*se_est)
+  
+  #print estimates
+  print(estimate)
+  print(ci_lower)
+  print(ci_upper)
+}
+
+print('Tree-In-Bud')
+ICC_f(T1=3.3175, T2=0.1353, VarT1=0.2166, VarT2=0.01077, CovT1T2=0.001336)
+
+print('')
+print('GGO')
+ICC_f(T1=5.0430, T2=0.5583, VarT1=1.3298, VarT2=0.09725, CovT1T2=0.02422)
+
+print('')
+print('Consolidation')
+ICC_f(T1=2.2156, T2=0.3958, VarT1=0.1566, VarT2=0.03091, CovT1T2=-0.00315)
+
+print('')
+print('Bronchiectasis')
+ICC_f(T1=4.1952, T2=0.9182, VarT1=0.3929, VarT2=0.04153, CovT1T2=-0.00076)
+```
+
+### Without Latent Variance
+
+```{r}
+#define function
+ICC_f <- function(T1, T2, VarT1, VarT2, CovT1T2){
+  denom <- (T1+T2)
+  estimate <- T1/(denom)
+  partial1 <- (T2)/(denom^2)
+  partial2 <- (-T1)/(denom^2)
+  
+  var_est <- (partial1^2 * VarT1) + (partial2^2 * VarT2) + (2*partial1*partial2*CovT1T2)
+  se_est <- sqrt(var_est)
+  
+  ci_lower <- estimate - (1.96*se_est)
+  ci_upper <- estimate + (1.96*se_est)
+  
+  #print estimates
+  print(estimate)
+  print(ci_lower)
+  print(ci_upper)
+}
+
+print('Tree-In-Bud')
+ICC_f(T1=3.3175, T2=0.1353, VarT1=0.2166, VarT2=0.01077, CovT1T2=0.001336)
+
+print('')
+print('GGO')
+ICC_f(T1=5.0430, T2=0.5583, VarT1=1.3298, VarT2=0.09725, CovT1T2=0.02422)
+
+print('')
+print('Consolidation')
+ICC_f(T1=2.2156, T2=0.3958, VarT1=0.1566, VarT2=0.03091, CovT1T2=-0.00315)
+
+print('')
+print('Bronchiectasis')
+ICC_f(T1=4.1952, T2=0.9182, VarT1=0.3929, VarT2=0.04153, CovT1T2=-0.00076)
+```

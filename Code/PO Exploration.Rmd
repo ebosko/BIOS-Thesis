@@ -44,6 +44,8 @@ demo <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/
 flat <- read.csv('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataRaw/demographic_final.csv')
 ```
 
+## Fitting Models
+
 ```{r}
 #convert score to an ordered factor (0 < 1 < 2 < 3)
 tib$score <- ordered(tib$score, levels = c(0,1,2,3))
@@ -62,36 +64,12 @@ tib_npo <- clmm2(score ~ 1,
                data     = tib,
                link     = "logistic",
                Hess     = TRUE,
-               control  = ctrl)
+               control  = ctrl,
+               nAGQ = 7)
 ```
 
 ```{r}
 summary(tib_npo)
-```
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-cons$score <- ordered(cons$score, levels = c(0,1,2,3))
-
-cons$lobe <- factor(cons$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-cons$id <- factor(cons$id)
-
-
-ctrl <- clmm2.control(method = "nlminb",
-                      maxIter = 10000)
-
-cons_npo <- clmm2(score ~ rater,
-               random   = id,
-               nominal  = ~ lobe,
-               data     = cons,
-               link     = "logistic",
-               Hess     = TRUE,
-               control  = ctrl)
-```
-
-```{r}
-summary(cons_npo)
 ```
 
 ```{r}
@@ -119,27 +97,81 @@ bronch_npo <- clmm2(score ~ 1,
 summary(bronch_npo)
 ```
 
+## Performing Comparisons
+
 ```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-atel$score <- ordered(atel$score, levels = c(0,1,2,3))
+## ── 1  HELPER ---------------------------------------------------------------
+pairwise_npo <- function(clmm_fit,
+                         lobes      = c("RUL","RML","RLL","LUS","LLS","LLL"),
+                         thresholds = c("0|1","1|2","2|3"),
+                         alpha      = 0.05) {
 
-atel$lobe <- factor(atel$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-atel$id <- factor(atel$id)
+  ## coefficients and (co)variances ------------------------------------------
+  b      <- clmm_fit$coef                      # named vector
+  V      <- solve(clmm_fit$Hessian)            # vcov matrix
+  coef_n <- names(b)
 
+  ## convenience look-up that returns 0 / 0 variance for baseline -------------
+  get_coef <- function(thr,lobe) {
+    nm <- paste0(thr,".lobe",lobe)
+    if (nm %in% coef_n) {
+      list(est = b[nm],
+           var = V[nm,nm],
+           cov = function(other) V[nm, other])   # returns a function
+    } else {
+      list(est = 0,
+           var = 0,
+           cov = function(other) 0)
+    }
+  }
 
-ctrl <- clmm2.control(method = "nlminb",
-                      maxIter = 10000)
+  ## all unordered lobe pairs -------------------------------------------------
+  comps <- combn(lobes, 2, simplify = FALSE)
 
-atel_npo <- clmm2(score ~ 1,
-               random   = id,
-               nominal  = ~ lobe + rater,
-               data     = atel,
-               link     = "logistic",
-               Hess     = TRUE,
-               control  = ctrl)
+  ## build results ------------------------------------------------------------
+  out <- purrr::map_dfr(thresholds, function(thr) {
+
+    purrr::map_dfr(comps, function(pair) {
+      A <- pair[1]; B <- pair[2]
+
+      cA <- get_coef(thr, A)
+      cB <- get_coef(thr, B)
+      est   <- cA$est - cB$est
+      var   <- cA$var + cB$var - 2 * cA$cov(paste0(thr, ".lobe", B))
+      se    <- sqrt(var)
+      z     <- est / se
+      p_raw <- 2 * pnorm(-abs(z))
+
+      tibble::tibble(
+        Comparison = sprintf("%s %s vs %s %s", B, thr, A, thr),
+        Odds_Ratio = exp(est),
+        OR_LowerCI = exp(est - qnorm(1 - alpha/2) * se),
+        OR_UpperCI = exp(est + qnorm(1 - alpha/2) * se),
+        raw_p      = p_raw
+      )
+    })
+  })
+
+  ## Benjamini–Hochberg FDR ----------------------------------------------------
+  out <- out %>%
+    dplyr::arrange(raw_p) %>%
+    dplyr::mutate(BH_adj_p = p.adjust(raw_p, method = "BH")) %>%
+    dplyr::arrange(BH_adj_p)
+
+  return(out)
+}
+
 ```
 
 ```{r}
-summary(atel_npo)
+results <- pairwise_npo(tib_npo)
+
+## View, print, or write to Excel
+print(results, n = 45)
+
+# writexl::write_xlsx(results,
+#   path = "Pairwise_NPO_lobe_comparisons.xlsx",
+#   sheet = "tib_npo")
+
 ```
+
