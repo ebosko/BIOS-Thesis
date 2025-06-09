@@ -74,3 +74,6 @@ p_forest_tib <- ggplot(forest_data_tib, aes(x = Odds_Ratio, y = Comparison)) +
 
 print(p_forest_tib)
 ```
+
+## Final ones
+

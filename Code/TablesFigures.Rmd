@@ -1,0 +1,173 @@
+---
+title: "Untitled"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Figures
+
+```{r}
+library(readxl)
+library(dplyr)
+library(purrr)
+library(tidyr)
+library(stringr)
+library(writexl)
+```
+
+```{r}
+folder <- "C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal"
+
+feature_rgx <- "(.*)\\.xlsx$"
+slice_rgx   <- "(PO_main|PO_reduced|NPO_0to1|NPO_1to2|NPO_2to3)"
+
+all_OR <- list.files(folder, pattern = "\\.xlsx$", full.names = TRUE) %>%
+  map_dfr(function(path) {
+
+    feature <- str_match(basename(path), feature_rgx)[, 2]
+
+    readxl::excel_sheets(path) %>%
+      keep(~ str_detect(.x, slice_rgx)) %>%
+      map_dfr(function(sh) {
+
+        dat <- read_excel(path, sheet = sh) %>%
+          transmute(
+            Comparison = Comparison,
+            OR         = Odds_Ratio,
+            OR_low     = OR_LowerCI,
+            OR_high    = OR_UpperCI
+          )
+
+        dat %>%
+          mutate(
+            Feature = feature,
+            slice   = case_when(
+              sh == "PO_main"    ~ "PO main",
+              sh == "PO_reduced" ~ "PO reduced",
+              sh == "NPO_0to1"   ~ "NPO 0→1",
+              sh == "NPO_1to2"   ~ "NPO 1→2",
+              sh == "NPO_2to3"   ~ "NPO 2→3"
+            )
+          )
+      })
+  }) %>%
+  mutate(
+    slice = factor(
+      slice,
+      levels = c("PO main", "PO reduced", "NPO 0→1", "NPO 1→2", "NPO 2→3")
+    )
+  )
+
+#wide comparison table
+table_wide <- all_OR %>%
+  mutate(
+    OR_fmt = sprintf("%.2f (%.2f–%.2f)", OR, OR_low, OR_high)
+  ) %>%
+  dplyr::select(Feature, Comparison, slice, OR_fmt) %>%
+  tidyr::pivot_wider(names_from = slice, values_from = OR_fmt) %>%
+  arrange(Feature, Comparison)
+
+#save
+writexl::write_xlsx(table_wide,
+                    path = file.path(folder, "Combined_OR_Table.xlsx"))
+```
+
+```{r}
+table_wide <- all_OR %>%
+  mutate(OR_fmt = sprintf("%.2f (%.2f–%.2f)", OR, OR_low, OR_high)) %>%
+  dplyr::select(Feature, Comparison, slice, OR_fmt) %>%
+  tidyr::pivot_wider(names_from = slice, values_from = OR_fmt) %>%
+  arrange(Feature, Comparison)
+
+#save to Excel
+writexl::write_xlsx(table_wide, "Combined_OR_Table.xlsx")
+
+```
+
+### Tree-in-bud
+
+```{r}
+feature_file <- file.path(folder, "tib.xlsx")
+
+slice_rgx <- "(PO_main|PO_reduced|NPO_0to1|NPO_1to2|NPO_2to3)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO main",
+          sh == "PO_reduced" ~ "PO reduced",
+          sh == "NPO_0to1"   ~ "NPO 0→1",
+          sh == "NPO_1to2"   ~ "NPO 1→2",
+          sh == "NPO_2to3"   ~ "NPO 2→3"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice,
+      levels = c("PO main","PO reduced","NPO 0→1","NPO 1→2","NPO 2→3")),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO main","PO reduced")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe odds ratios – PO models (TIB feature)",
+       x = "Odds Ratio (log scale)", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#NPO figure with facets
+plot_NPO <- plot_df %>%
+  filter(str_detect(slice, "^NPO")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             alpha = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25, colour = "steelblue") +
+  geom_point(size = 3, shape = 22, fill = "steelblue") +
+  facet_wrap(~ slice, ncol = 1, scales = "free_y") +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .3), guide = "none") +
+  labs(title = "Lobe-to-lobe odds ratios – NPO cut-points (TIB feature)",
+       x = "Odds Ratio (log scale)", y = NULL) +
+  theme_bw() + theme(strip.text = element_text(face = "bold"),
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "TIB_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+ggsave(file.path(folder, "TIB_NPO_forest.png"), plot_NPO,
+       width = 7, height = 10, dpi = 300)
+
+```
+
