@@ -114,7 +114,7 @@ pairwise_npo <- function(clmm_fit,
     if (nm %in% coef_n) {
       list(est = b[nm],
            var = V[nm,nm],
-           cov = function(other) V[nm, other])   # returns a function
+           cov = function(other) V[nm, other]
     } else {
       list(est = 0,
            var = 0,
@@ -160,7 +160,6 @@ pairwise_npo <- function(clmm_fit,
 ```{r}
 results <- pairwise_npo(tib_npo)
 
-## View, print, or write to Excel
 print(results, n = 45)
 
 #writexl::write_xlsx(results,
@@ -171,7 +170,6 @@ print(results, n = 45)
 ```{r}
 results <- pairwise_npo(bronch_npo)
 
-## View, print, or write to Excel
 print(results, n = 45)
 
 writexl::write_xlsx(results,

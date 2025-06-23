@@ -18,6 +18,7 @@ library(purrr)
 library(tidyr)
 library(stringr)
 library(writexl)
+library(tidytext)
 ```
 
 ```{r}
@@ -108,8 +109,8 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO main",
-          sh == "PO_reduced" ~ "PO reduced",
+          sh == "PO_main"    ~ "PO Full",
+          sh == "PO_reduced" ~ "PO Reduced",
           sh == "NPO_0to1"   ~ "NPO 0→1",
           sh == "NPO_1to2"   ~ "NPO 1→2",
           sh == "NPO_2to3"   ~ "NPO 2→3"
@@ -118,13 +119,13 @@ plot_df <- excel_sheets(feature_file) %>%
   }) %>%
   mutate(
     slice = factor(slice,
-      levels = c("PO main","PO reduced","NPO 0→1","NPO 1→2","NPO 2→3")),
+      levels = c("PO Full","PO Reduced","NPO 0→1","NPO 1→2","NPO 2→3")),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO main","PO reduced")) %>%
+  filter(slice %in% c("PO Full","PO Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -138,30 +139,40 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe odds ratios – PO models (TIB feature)",
-       x = "Odds Ratio (log scale)", y = NULL,
+  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Tree-in-bud)",
+       x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
                      axis.text.y = element_text(size = 7))
 
 #NPO figure with facets
-plot_NPO <- plot_df %>%
-  filter(str_detect(slice, "^NPO")) %>%
+plot_NPO <- plot_df %>% 
+  filter(str_detect(slice, "^NPO")) %>% 
+  mutate(Comparison = reorder_within(Comparison,
+                                     -row_number(),
+                                     slice)) %>% 
   ggplot(aes(x = OR,
-             y = factor(Comparison, levels = rev(unique(Comparison))),
-             alpha = sig)) +
+             y = Comparison,
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
   geom_vline(xintercept = 1, linetype = "dashed") +
   geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
-                 height = .25, colour = "steelblue") +
-  geom_point(size = 3, shape = 22, fill = "steelblue") +
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
   facet_wrap(~ slice, ncol = 1, scales = "free_y") +
-  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
-                limits = c(.2, max(plot_df$OR_high)*1.05)) +
-  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .3), guide = "none") +
-  labs(title = "Lobe-to-lobe odds ratios – NPO cut-points (TIB feature)",
-       x = "Odds Ratio (log scale)", y = NULL) +
-  theme_bw() + theme(strip.text = element_text(face = "bold"),
-                     axis.text.y = element_text(size = 7))
+  scale_y_reordered() +
+  scale_x_log10(breaks = c(.25, .5, 1, 2, 4, 8, 16, 32, 64),
+                limits = c(.2, max(plot_df$OR_high) * 1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .30), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – NPO cut-points (Tree-in-bud)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() +
+  theme(strip.text  = element_text(face = "bold"),
+        axis.text.y = element_text(size = 7))
+
 
 #save
 ggsave(file.path(folder, "TIB_PO_forest.png"),  plot_PO,
@@ -171,3 +182,440 @@ ggsave(file.path(folder, "TIB_NPO_forest.png"), plot_NPO,
 
 ```
 
+### Large Nodules
+
+```{r}
+feature_file <- file.path(folder, "ln.xlsx")
+
+slice_rgx <- "(PO_main)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice),
+      levels = c("PO Full"),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Large Nodules)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "LN_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+### Ground-glass opacities
+
+```{r}
+feature_file <- file.path(folder, "ggo.xlsx")
+
+slice_rgx <- "(PO_main|PO_reduced)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full",
+          sh == "PO_reduced" ~ "PO Reduced"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice,
+      levels = c("PO Full","PO Reduced")),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full","PO Reduced")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Ground-Glass Opacities)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "GGO_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+### Consolidation
+
+```{r}
+feature_file <- file.path(folder, "cons.xlsx")
+
+slice_rgx <- "(PO_main|PO_reduced)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full",
+          sh == "PO_reduced" ~ "PO Reduced"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice,
+      levels = c("PO Full","PO Reduced")),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full","PO Reduced")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Consolidation)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "CONS_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+### Bronchiectasis
+
+```{r}
+feature_file <- file.path(folder, "bronch.xlsx")
+
+slice_rgx <- "(PO_main|PO_reduced|NPO_0to1|NPO_1to2|NPO_2to3)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full",
+          sh == "PO_reduced" ~ "PO Reduced",
+          sh == "NPO_0to1"   ~ "NPO 0→1",
+          sh == "NPO_1to2"   ~ "NPO 1→2",
+          sh == "NPO_2to3"   ~ "NPO 2→3"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice,
+      levels = c("PO Full","PO Reduced","NPO 0→1","NPO 1→2","NPO 2→3")),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full","PO Reduced")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8,16,32),
+                limits = c(.2, 33)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Bronchiectasis)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#NPO figure with facets
+plot_NPO <- plot_df %>% 
+  filter(str_detect(slice, "^NPO")) %>% 
+  mutate(Comparison = reorder_within(Comparison,
+                                     -row_number(),
+                                     slice)) %>% 
+  ggplot(aes(x = OR,
+             y = Comparison,
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  facet_wrap(~ slice, ncol = 1, scales = "free_y") +
+  scale_y_reordered() +
+  scale_x_log10(breaks = c(.25, .5, 1, 2, 4, 8, 16, 32, 64, 128),
+                limits = c(.2, max(plot_df$OR_high) * 1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .30), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – NPO cut-points (Bronchiectasis)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() +
+  theme(strip.text  = element_text(face = "bold"),
+        axis.text.y = element_text(size = 7))
+
+
+#save
+ggsave(file.path(folder, "BRONCH_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+ggsave(file.path(folder, "BRONCH_NPO_forest.png"), plot_NPO,
+       width = 7, height = 10, dpi = 300)
+
+```
+
+### Atelectasis
+
+```{r}
+feature_file <- file.path(folder, "atel.xlsx")
+
+slice_rgx <- "(PO_main)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice),
+      levels = c("PO Full"),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16, 32),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Atelectasis)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "ATEL_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+### Thin Wall Cavity
+
+```{r}
+feature_file <- file.path(folder, "thin.xlsx")
+
+slice_rgx <- "(PO_main)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice),
+      levels = c("PO Full"),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Thin Wall Cavity)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "THIN_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+### Thick Wall Cavity
+
+```{r}
+feature_file <- file.path(folder, "thick.xlsx")
+
+slice_rgx <- "(PO_main)"
+
+plot_df <- excel_sheets(feature_file) %>%
+  keep(~ str_detect(.x, slice_rgx)) %>%
+  map_dfr(function(sh) {
+
+    read_excel(feature_file, sheet = sh) %>%
+      transmute(
+        Comparison,
+        OR      = Odds_Ratio,
+        OR_low  = OR_LowerCI,
+        OR_high = OR_UpperCI,
+        FDR_p   = FDR_p,
+        slice   = case_when(
+          sh == "PO_main"    ~ "PO Full"
+        )
+      )
+  }) %>%
+  mutate(
+    slice = factor(slice),
+      levels = c("PO Full"),
+    sig   = FDR_p < 0.05
+  )
+
+#PO-only figure
+plot_PO <- plot_df %>%
+  filter(slice %in% c("PO Full")) %>%
+  ggplot(aes(x = OR,
+             y = factor(Comparison, levels = rev(unique(Comparison))),
+             colour = slice,
+             shape  = slice,
+             alpha  = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = OR_low, xmax = OR_high),
+                 height = .25,
+                 position = position_dodge(width = .7)) +
+  geom_point(size = 3, position = position_dodge(width = .7)) +
+  scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16, 32, 64, 128),
+                limits = c(.2, max(plot_df$OR_high)*1.05)) +
+  scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
+  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Thick Wall Cavity)",
+       x = "Odds Ratio", y = NULL,
+       colour = NULL, shape = NULL) +
+  theme_bw() + theme(legend.position = "bottom",
+                     axis.text.y = element_text(size = 7))
+
+#save
+ggsave(file.path(folder, "THICK_PO_forest.png"),  plot_PO,
+       width = 7, height = 8, dpi = 300)
+
+```
+
+## Tables
