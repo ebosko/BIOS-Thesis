@@ -1,0 +1,188 @@
+---
+title: "Kappa"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Read in data and packages
+
+```{r, warning=F, message=F}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(psych)
+library(purrr)
+```
+
+```{r, warning=F, message=F}
+#read in data
+tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "tib.long")
+
+ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ggo.long")
+
+cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "cons.long")
+
+bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "bronch.long")
+
+atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "atel.long")
+
+ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "ln.long")
+
+thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thin.long")
+
+thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/2025.4.2.xlsx', sheet = "thick.long")
+```
+
+## Compute Cohen's Kappa and GK's Gamma
+
+### Atelectasis
+
+```{r}
+#reshape to wide format
+atel_wide <- atel %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(atel_wide$JW, atel_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+ck$confid
+```
+
+### Bronchiectasis
+
+```{r}
+#reshape to wide format
+bronch_wide <- bronch %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(bronch_wide$JW, bronch_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+ck$confid
+```
+
+### Consolidation
+
+```{r}
+#reshape to wide format
+cons_wide <- cons %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(cons_wide$JW, cons_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+
+```
+
+### Ground-glass Opacities
+
+```{r}
+#reshape to wide format
+ggo_wide <- ggo %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(ggo_wide$JW, ggo_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+
+```
+
+### Large Nodules
+
+```{r}
+#reshape to wide format
+ln_wide <- ln %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(ln_wide$JW, ln_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+
+```
+
+### Thick Wall Cavities
+
+```{r}
+#reshape to wide format
+thick_wide <- thick %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(thick_wide$JW, thick_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+
+```
+
+### Thin Wall Cavities
+
+```{r}
+#reshape to wide format
+thin_wide <- thin %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(thin_wide$JW, thin_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+
+```
+
+### Tree-in-bud
+
+```{r}
+#reshape to wide format
+tib_wide <- tib %>%
+  select(id, lobe, rater, score) %>%
+  pivot_wider(names_from = rater, values_from = score)
+
+#confusion matrix
+conf_mat <- table(tib_wide$JW, tib_wide$VH)
+
+#kappa with CI
+ck <- cohen.kappa(conf_mat)
+
+#access results
+ck$confid
+```

@@ -56,7 +56,7 @@ score_colors_new <- c(
   "3" = "#E34A33",  # Orange-Red for Score 3
   "2" = "#3B9142",  # Green for Score 2
   "1" = "#5EC9C2",  # Light Blue for Score 1
-  "0" = "white"   # white for Score 0
+  "0" = "#be64ac"   # white for Score 0
 )
 
 #by rating 
@@ -81,7 +81,7 @@ tib %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack', color = 'black') + 
+  geom_bar(position = 'stack') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of TIB Ratings by Lobe',
@@ -93,9 +93,11 @@ tib %>%
 
 tib %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of JW\'s TIB Ratings by Lobe',
     x='Lobe',
@@ -106,9 +108,11 @@ tib %>%
 
 tib %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of VH\'s TIB Ratings by Lobe',
     x='Lobe',
@@ -154,7 +158,8 @@ ln %>%
 
 ln %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -167,7 +172,8 @@ ln %>%
 
 ln %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -204,7 +210,7 @@ ggo %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack', color = 'black') + 
+  geom_bar(position = 'stack') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of GGO Ratings by Lobe',
@@ -216,9 +222,11 @@ ggo %>%
 
 ggo %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of JW\'s GGO Ratings by Lobe',
     x='Lobe',
@@ -229,9 +237,11 @@ ggo %>%
 
 ggo %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of VH\'s GGO Ratings by Lobe',
     x='Lobe',
@@ -266,7 +276,7 @@ cons %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack', color = 'black') + 
+  geom_bar(position = 'stack') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Consolidation Ratings by Lobe',
@@ -278,9 +288,11 @@ cons %>%
 
 cons %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of JW\'s Consolidation Ratings by Lobe',
     x='Lobe',
@@ -291,9 +303,11 @@ cons %>%
 
 cons %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of VH\'s Consolidation Ratings by Lobe',
     x='Lobe',
@@ -328,7 +342,7 @@ bronch %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack', color = 'black') + 
+  geom_bar(position = 'stack') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Bronchiectasis Ratings by Lobe',
@@ -340,9 +354,11 @@ bronch %>%
 
 bronch %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of JW\'s Bronchiectasis Ratings by Lobe',
     x='Lobe',
@@ -353,9 +369,11 @@ bronch %>%
 
 bronch %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of VH\'s Bronchiectasis Ratings by Lobe',
     x='Lobe',
@@ -390,7 +408,7 @@ atel %>%
   mutate(score = factor(score, levels = c(3,2,1,0)),
          lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
-  geom_bar(position = 'stack', color = 'black') + 
+  geom_bar(position = 'stack') + 
   scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of Atelectasis Ratings by Lobe',
@@ -402,9 +420,11 @@ atel %>%
 
 atel %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of JW\'s Atelectasis Ratings by Lobe',
     x='Lobe',
@@ -415,9 +435,11 @@ atel %>%
 
 atel %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
+  scale_fill_manual(values = score_colors_new) +
   labs(
     title = 'Distribution of VH\'s Atelectasis Ratings by Lobe',
     x='Lobe',
@@ -463,7 +485,8 @@ thin %>%
 
 thin %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -476,7 +499,8 @@ thin %>%
 
 thin %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -524,7 +548,8 @@ thick %>%
 
 thick %>%
   filter(rater == 'JW') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -537,7 +562,8 @@ thick %>%
 
 thick %>%
   filter(rater == 'VH') %>%
-  mutate(score = factor(score, levels = c(3,2,1,0))) %>%
+  mutate(score = factor(score, levels = c(3,2,1,0)),
+         lobe = factor(lobe, levels = c('RUL','RML','RLL','LUS','LLS','LLL'))) %>%
   ggplot(aes (x=lobe, fill = factor(score))) +
   geom_bar(position = 'stack') + 
   labs(
@@ -549,487 +575,3 @@ thick %>%
   theme_minimal()
 ```
 
-## Heatmap
-
-### Ordinal Outcomes
-
-```{r}
-# Add feature labels
-tib$feature <- "TIB"
-ggo$feature <- "GGO"
-bronch$feature <- "Bronchiectasis"
-cons$feature <- "Consolidation"
-atel$feature <- "Atelectasis"
-
-# Bind together
-ordinal_data <- bind_rows(tib, ggo, bronch, cons, atel)
-
-# Create heatmap data: average score per lobe and feature
-heatmap_data_ordinal <- ordinal_data %>%
-  group_by(lobe, feature) %>%
-  summarize(mean_score = mean(score, na.rm = TRUE)) %>%
-  ungroup()
-
-ggplot(heatmap_data_ordinal, aes(x = feature, y = lobe, fill = mean_score)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Avg Score") +
-  labs(
-    title = "Average CT Score by Feature and Lobe (Ordinal Features)",
-    x = "CT Feature",
-    y = "Lung Lobe"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-
-### Binary Outcomes
-
-```{r}
-# Add feature labels
-ln$feature <- "Large Nodules"
-thin$feature <- "Thin-wall Cavity"
-thick$feature <- "Thick-wall Cavity"
-
-# Bind
-binary_data <- bind_rows(ln, thin, thick)
-
-# Create heatmap data
-heatmap_data_binary <- binary_data %>%
-  group_by(lobe, feature) %>%
-  summarize(mean_score = mean(as.numeric(score), na.rm = TRUE)) %>%
-  ungroup()
-
-# Plot heatmap
-ggplot(heatmap_data_binary, aes(x = feature, y = lobe, fill = mean_score)) +
-  geom_tile(color = "white") +
-  scale_fill_gradient(low = "lightyellow", high = "red", name = "Proportion Present") +
-  labs(
-    title = "Proportion of Binary CT Feature Present by Lobe",
-    x = "CT Feature",
-    y = "Lung Lobe"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
-## Small Multiples
-
-```{r}
-# Add feature label for each ordinal dataset
-tib$feature <- "TIB"
-ggo$feature <- "GGO"
-bronch$feature <- "BRONCH"
-cons$feature <- "CONS"
-atel$feature <- "ATEL"
-
-# Combine all ordinal features into one
-ordinal_all <- bind_rows(tib, ggo, bronch, cons, atel)
-
-# Clean and reformat
-ordinal_all <- ordinal_all %>%
-  mutate(
-    score = as.numeric(as.character(score)),  # ensure numeric
-    lobe = factor(lobe, levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL")),
-    feature = factor(feature, levels = c("TIB", "GGO", "CONS", "ATEL", "BRONCH"))
-  )
-
-# Create small multiples matrix of score distributions
-ggplot(ordinal_all, aes(x = rater, y = score, fill = rater)) +
-  geom_violin(scale = "width", adjust = 1, trim = FALSE, alpha = 0.6, color = NA) +
-  geom_boxplot(width = 0.1, outlier.shape = NA, alpha = 0.9) +
-  facet_grid(feature ~ lobe) +
-  scale_y_continuous(breaks = c(0, 3)) +
-  scale_fill_brewer(palette = "Set1") +
-  labs(
-    title = "Score Distributions by Lobe and CT Feature",
-    x = "Rater",
-    y = "Score"
-  ) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(size = 10),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "none"
-  )
-
-```
-
-## Simple Models without Random Effects; Lobe and Rater as Fixed Effects
-
-### Tree-in-bud
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-tib$score <- ordered(tib$score, levels = c(0,1,2,3))
-
-tib$lobe <- factor(tib$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit simple PO model, ignoring REs
-tib_polr <- polr(
-  score ~ lobe + rater, 
-  data = tib, 
-  method = "logistic", 
-  Hess = TRUE
-)
-
-#look at summary of results
-summary(tib_polr)
-
-#check the proportional odds assumption with the brant test
-brant(tib_polr)
-
-print("AIC:")
-AIC(tib_polr)
-
-#set up contrasts to compare lobes
-tib_emm <- emmeans(tib_polr, ~ lobe)
-tib_emm
-pairs(tib_emm)
-```
-
-Proportional odds violated
-
-Significant differences:
-LUS vs all other lobes
-*RUL - LUS: OR = 2.19 => RUL's odds of disease is 2.19 times that of LUS
-*RML - LUS: OR = 2.45 => RML's odds of disease is 2.45 times that of LUS
-*RLL - LUS: OR = 3.14 => RLL's odds of disease is 3.14 times that of LUS
-*RLL - LLS: OR = 1.68 => RLL's odds of disease is 1.68 times that of LUS
-*LUS - LLS: OR = 0.54 => LUS's odds of disease is 0.54 times that of LLS
-*LUS - LLL: OR = 0.37 => LLL's odds of disease is 0.37 times that of LUS
-
-### Large Nodules
-
-```{r}
-#ensure score is a factor with levels 0 and 1
-ln$score <- factor(ln$score, levels = c(0,1))
-
-#make lobe a factor in the desired order
-ln$lobe <- factor(ln$lobe, 
-                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit a standard logistic regression model (binary) 
-ln_glm <- glm(score ~ lobe + rater, 
-                 data = ln, 
-                 family = binomial(link = "logit"))
-
-#look at model summary 
-summary(ln_glm)
-
-#obtain estimated means (probabilities of score=1 by lobe)
-ln_emm <- emmeans(ln_glm, ~ lobe, type = "response")
-
-#see the pairwise comparisons
-pairs(ln_emm)
-```
-
-Significant findings:
-*RUL - RML: OR = 2.73 => RUL's odds of disease is 2.73 times that of RML
-*RUL - LUS: OR = 2.94 => RUL's odds of disease is 2.94 times that of LUS
-*RUL - LLS: OR = 2.73 => RUL's odds of disease is 2.73 times that of LLS
-*RML - RLL: OR = 0.35 => RML's odds of disease is 0.35 times that of RLL
-*RML - LLL: OR = 0.32 => RML's odds of disease is 0.32 times that of LLL
-*RLL - LUS: OR = 3.06 => RLL's odds of disease is 3.06 times that of LUS
-*RLL - LLS: OR = 2.84 => RLL's odds of disease is 2.84 times that of LLS
-*LUS - LLL: OR = 0.30 => LUS's odds of disease is 0.30 times that of LLL
-*LLS - LLL: OR = 0.32 => LLS's odds of disease is 0.32 times that of LLL
-
-### Ground-glass Opacities
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-ggo$score <- ordered(ggo$score, levels = c(0,1,2,3))
-
-ggo$lobe <- factor(ggo$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit simple PO model, ignoring REs
-ggo_polr <- polr(
-  score ~ lobe + rater, 
-  data = ggo, 
-  method = "logistic", 
-  Hess = TRUE
-)
-
-#look at summary of results
-summary(ggo_polr)
-
-#check the proportional odds assumption with the brant test
-brant(ggo_polr)
-
-#set up contrasts to compare lobes
-ggo_emm <- emmeans(ggo_polr, ~ lobe)
-ggo_emm
-pairs(ggo_emm)
-```
-
-Proportional odds not violated
-
-No significant differences between lobes
-
-### Consolidations
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-cons$score <- ordered(cons$score, levels = c(0,1,2,3))
-
-cons$lobe <- factor(cons$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit simple PO model, ignoring REs
-cons_polr <- polr(
-  score ~ lobe + rater, 
-  data = cons, 
-  method = "logistic", 
-  Hess = TRUE
-)
-
-#look at summary of results
-summary(cons_polr)
-
-#check the proportional odds assumption with the brant test
-brant(cons_polr)
-
-#set up contrasts to compare lobes
-cons_emm <- emmeans(cons_polr, ~ lobe)
-cons_emm
-pairs(cons_emm)
-```
-
-Proportional odds assumption not violated
-
-Significant findings:
-*RUL - LUS: OR = 3.03 => RUL's odds of disease is 3.03 times that of LUS
-*RUL - LLL: OR = 1.74 => RUL's odds of disease is 1.74 times that of LLL
-*RML - LUS: OR = 3.38 => RML's odds of disease is 3.38 times that of LUS
-*RML - LLL: OR = 1.93 => RML's odds of disease is 1.93 times that of LLL
-*RLL - LUS: OR = 2.11 => RLL's odds of disease is 2.11 times that of LUS
-*LUS - LLS: OR = 0.35 => LUS's odds of disease is 0.35 times that of LLS
-
-### Bronchiectasis
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-bronch$score <- ordered(bronch$score, levels = c(0,1,2,3))
-
-bronch$lobe <- factor(bronch$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit simple PO model, ignoring REs
-bronch_polr <- polr(
-  score ~ lobe + rater, 
-  data = bronch, 
-  method = "logistic", 
-  Hess = TRUE
-)
-
-#look at summary of results
-summary(bronch_polr)
-
-#check the proportional odds assumption with the brant test
-brant(bronch_polr)
-
-#set up contrasts to compare lobes
-bronch_emm <- emmeans(bronch_polr, ~ lobe)
-bronch_emm
-pairs(bronch_emm)
-```
-
-Proportional odds assumption violated
-
-Significant findings:
-*RUL - RML: OR = 0.42 => RUL's odds of disease is 0.42 times that of RML
-*RUL - LUS: OR = 3.03 => RUL's odds of disease is 3.03 times that of LUS
-*RUL - LLL: OR = 1.70 => RUL's odds of disease is 1.70 times that of LLL
-*RML - RLL: OR = 2.80 => RML's odds of disease is 2.80 times that of RLL
-*RML - LUS: OR = 7.21 => RML's odds of disease is 7.21 times that of LUS
-*RML - LLS: OR = 1.68 => RML's odds of disease is 1.68 times that of LLS
-*RML - LLL: OR = 4.05 => RML's odds of disease is 4.05 times that of LLL
-*RLL - LUS: OR = 2.58 => RLL's odds of disease is 2.58 times that of LUS
-*RLL - LLS: OR = 0.60 => RLL's odds of disease is 0.60 times that of LLS
-*LUS - LLS: OR = 0.23 => LUS's odds of disease is 0.23 times that of LLS
-*LUS - LLL: OR = 0.56 => LUS's odds of disease is 0.56 times that of LLL
-*LLS - LLL: OR = 2.41 => LLS's odds of disease is 2.41 times that of LLL
-
-### Atelectasis
-
-```{r}
-#convert score to an ordered factor (0 < 1 < 2 < 3)
-atel$score <- ordered(atel$score, levels = c(0,1,2,3))
-
-atel$lobe <- factor(atel$lobe, 
-                           levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit simple PO model, ignoring REs
-atel_polr <- polr(
-  score ~ lobe + rater, 
-  data = atel, 
-  method = "logistic", 
-  Hess = TRUE
-)
-
-#look at summary of results
-summary(atel_polr)
-
-#check the proportional odds assumption with the brant test
-brant(atel_polr)
-
-#set up contrasts to compare lobes
-atel_emm <- emmeans(atel_polr, ~ lobe)
-atel_emm
-pairs(atel_emm)
-```
-
-Proportional odds assumption holds
-
-Significant findings:
-*RUL - RML: OR = 0.18 => RUL's odds of disease is 0.22 times that of RML
-*RUL - RLL: OR = 2.47 => RUL's odds of disease is 2.47 times that of RLL
-*RUL - LUS: OR = 2.43 => RUL's odds of disease is 2.43 times that of LUS
-*RUL - LLS: OR = 0.25 => RUL's odds of disease is 0.25 times that of LLS
-*RML - RLL: OR = 13.4 => RML's odds of disease is 13.4 times that of RLL
-*RML - LUS: OR = 13.2 => RML's odds of disease is 13.2 times that of LUS
-*RML - LLL: OR = 10.8 => RML's odds of disease is 10.8 times that of LLL
-*RLL - LLS: OR = 0.10 => RLL's odds of disease is 0.10 times that of LLS
-*LUS - LLS: OR = 0.10 => LUS's odds of disease is 0.10 times that of LLS
-*LLS - LLL: OR = 7.96 => LLS's odds of disease is 7.96 times that of LLL
-
-### Thin Wall Cavity
-
-```{r}
-#ensure score is a factor with levels 0 and 1
-thin$score <- factor(thin$score, levels = c(0,1))
-
-#make lobe a factor in the desired order
-thin$lobe <- factor(thin$lobe, 
-                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit a standard logistic regression model (binary) 
-thin_glm <- glm(score ~ lobe + rater, 
-                 data = thin, 
-                 family = binomial(link = "logit"))
-
-#look at model summary 
-summary(thin_glm)
-
-#obtain estimated means (probabilities of score=1 by lobe)
-thin_emm <- emmeans(thin_glm, ~ lobe, type = "response")
-
-#see the pairwise comparisons
-pairs(thin_emm)
-```
-
-Lobes do not significantly differ
-
-
-### Thick Wall Cavity
-
-```{r}
-#ensure score is a factor with levels 0 and 1
-thick$score <- factor(thick$score, levels = c(0,1))
-
-#make lobe a factor in the desired order
-thick$lobe <- factor(thick$lobe, 
-                             levels = c("RUL", "RML", "RLL", "LUS", "LLS", "LLL"))
-
-#fit a standard logistic regression model (binary) 
-thick_glm <- glm(score ~ lobe + rater, 
-                 data = thick, 
-                 family = binomial(link = "logit"))
-
-#look at model summary 
-summary(thick_glm)
-
-#obtain estimated means (probabilities of score=1 by lobe)
-thick_emm <- emmeans(thick_glm, ~ lobe, type = "response")
-
-#see the pairwise comparisons
-pairs(thick_emm)
-```
-
-Significant findings:
-*RUL - RML: OR = 10.4 => RUL's odds of disease is 10.4 times that of RML
-*RUL - RLL: OR = 2.48 => RUL's odds of disease is 2.48 times that of RLL
-*RUL - LUS: OR = 4.07 => RUL's odds of disease is 4.07 times that of LUS
-*RUL - LLS: OR = 10.4 => RUL's odds of disease is 10.4 times that of LLS
-*RUL - LLL: OR = 3.68 => RUL's odds of disease is 3.68 times that of LLL
-
-## ICC Calculations
-
-### With Latent Variance
-
-```{r}
-#define function
-ICC_f <- function(T1, T2, VarT1, VarT2, CovT1T2, c=(pi^2)/3){
-  denom <- (T1+T2+c)
-  estimate <- T1/(denom)
-  partial1 <- (T2+c)/(denom^2)
-  partial2 <- (-T1)/(denom^2)
-  
-  var_est <- (partial1^2 * VarT1) + (partial2^2 * VarT2) + (2*partial1*partial2*CovT1T2)
-  se_est <- sqrt(var_est)
-  
-  ci_lower <- estimate - (1.96*se_est)
-  ci_upper <- estimate + (1.96*se_est)
-  
-  #print estimates
-  print(estimate)
-  print(ci_lower)
-  print(ci_upper)
-}
-
-print('Tree-In-Bud')
-ICC_f(T1=3.3175, T2=0.1353, VarT1=0.2166, VarT2=0.01077, CovT1T2=0.001336)
-
-print('')
-print('GGO')
-ICC_f(T1=5.0430, T2=0.5583, VarT1=1.3298, VarT2=0.09725, CovT1T2=0.02422)
-
-print('')
-print('Consolidation')
-ICC_f(T1=2.2156, T2=0.3958, VarT1=0.1566, VarT2=0.03091, CovT1T2=-0.00315)
-
-print('')
-print('Bronchiectasis')
-ICC_f(T1=4.1952, T2=0.9182, VarT1=0.3929, VarT2=0.04153, CovT1T2=-0.00076)
-```
-
-### Without Latent Variance
-
-```{r}
-#define function
-ICC_f <- function(T1, T2, VarT1, VarT2, CovT1T2){
-  denom <- (T1+T2)
-  estimate <- T1/(denom)
-  partial1 <- (T2)/(denom^2)
-  partial2 <- (-T1)/(denom^2)
-  
-  var_est <- (partial1^2 * VarT1) + (partial2^2 * VarT2) + (2*partial1*partial2*CovT1T2)
-  se_est <- sqrt(var_est)
-  
-  ci_lower <- estimate - (1.96*se_est)
-  ci_upper <- estimate + (1.96*se_est)
-  
-  #print estimates
-  print(estimate)
-  print(ci_lower)
-  print(ci_upper)
-}
-
-print('Tree-In-Bud')
-ICC_f(T1=3.3175, T2=0.1353, VarT1=0.2166, VarT2=0.01077, CovT1T2=0.001336)
-
-print('')
-print('GGO')
-ICC_f(T1=5.0430, T2=0.5583, VarT1=1.3298, VarT2=0.09725, CovT1T2=0.02422)
-
-print('')
-print('Consolidation')
-ICC_f(T1=2.2156, T2=0.3958, VarT1=0.1566, VarT2=0.03091, CovT1T2=-0.00315)
-
-print('')
-print('Bronchiectasis')
-ICC_f(T1=4.1952, T2=0.9182, VarT1=0.3929, VarT2=0.04153, CovT1T2=-0.00076)
-```

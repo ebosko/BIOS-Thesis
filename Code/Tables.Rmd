@@ -1,0 +1,33 @@
+---
+title: "Tables"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(table1)
+library(kableExtra)
+library(readxl)
+```
+
+## Table 1
+
+```{r}
+demo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/species.xlsx', sheet='JW')
+demo$CharacterJW <- factor(demo$Code, 
+                           levels = 1:4,
+                           labels = c('MAC-LD','MAB-LD','MAC-LD & MAB-LD','Other'))
+
+demo$Sex <- factor(demo$Sex,
+                   levels = c('F','M'),
+                   labels = c('Female','Male'))
+
+mytable1 <- table1(~Age + Sex | CharacterJW, data=demo)
+
+mytable1
+```

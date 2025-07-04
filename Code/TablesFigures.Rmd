@@ -19,6 +19,7 @@ library(tidyr)
 library(stringr)
 library(writexl)
 library(tidytext)
+library(ggplot2)
 ```
 
 ```{r}
@@ -201,19 +202,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Full"
+          sh == "PO_main"    ~ "PO Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Full"),
+      levels = c("PO Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Full")) %>%
+  filter(slice %in% c("PO Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -466,19 +467,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Full"
+          sh == "PO_main"    ~ "PO Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Full"),
+      levels = c("PO Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Full")) %>%
+  filter(slice %in% c("PO Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -523,19 +524,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Full"
+          sh == "PO_main"    ~ "PO Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Full"),
+      levels = c("PO Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Full")) %>%
+  filter(slice %in% c("PO Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -580,19 +581,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Full"
+          sh == "PO_main"    ~ "PO Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Full"),
+      levels = c("PO Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Full")) %>%
+  filter(slice %in% c("PO Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -618,4 +619,974 @@ ggsave(file.path(folder, "THICK_PO_forest.png"),  plot_PO,
 
 ```
 
-## Tables
+## Heatmaps
+
+### Atelectasis
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/atel.xlsx'
+df <- read_excel(file_path)
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Atelectasis",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Bronchiectasis
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/bronch.xlsx'
+df <- read_excel(file_path, sheet='PO_main')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Bronchiectasis (Full)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/bronch.xlsx'
+df <- read_excel(file_path, sheet='PO_reduced')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Bronchiectasis (Reduced)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/bronch.xlsx'
+df <- read_excel(file_path, sheet='NPO_0to1')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Bronchiectasis (NPO 0|1)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/bronch.xlsx'
+df <- read_excel(file_path, sheet='NPO_1to2')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Bronchiectasis (NPO 1|2)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/bronch.xlsx'
+df <- read_excel(file_path, sheet='NPO_2to3')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Bronchiectasis (NPO 2|3)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Consolidation
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/cons.xlsx'
+df <- read_excel(file_path, sheet='PO_main')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Consolidation (Full)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/cons.xlsx'
+df <- read_excel(file_path, sheet='PO_reduced')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Consolidation (Reduced)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Ground-glass Opacities
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/ggo.xlsx'
+df <- read_excel(file_path, sheet='PO_main')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - GGO (Full)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/ggo.xlsx'
+df <- read_excel(file_path, sheet='PO_reduced')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - GGO (Reduced)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Large Nodules
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/ln.xlsx'
+df <- read_excel(file_path)
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Large Nodules",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Thick Wall Cavity
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/thick.xlsx'
+df <- read_excel(file_path)
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Thick Wall Cavities",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Thin Wall Cavity
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/thin.xlsx'
+df <- read_excel(file_path)
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Thin Wall Cavities",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+### Tree-in-bud
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/tib.xlsx'
+df <- read_excel(file_path, sheet='PO_main')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Tree-in-bud (Full)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/tib.xlsx'
+df <- read_excel(file_path, sheet='PO_reduced')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Tree-in-bud (Reduced)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/tib.xlsx'
+df <- read_excel(file_path, sheet='NPO_0to1')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Tree-in-bud (NPO 0|1)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/tib.xlsx'
+df <- read_excel(file_path, sheet='NPO_1to2')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Tree-in-bud (NPO 1|2)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
+
+```{r}
+#read data
+file_path <- 'C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal/tib.xlsx'
+df <- read_excel(file_path, sheet='NPO_2to3')
+
+#split comparison column into two lobes
+df <- df %>%
+  mutate(
+    Lobe1 = str_trim(str_extract(Comparison, "^[^v]+")),
+    Lobe2 = str_trim(str_extract(Comparison, "(?<=vs ).*"))
+  )
+
+#add reciprocal rows
+recip_df <- df %>%
+  mutate(
+    temp = Lobe1,
+    Lobe1 = Lobe2,
+    Lobe2 = temp,
+    Odds_Ratio = 1 / Odds_Ratio
+  ) %>%
+  select(Comparison, Odds_Ratio, Lobe1, Lobe2)
+
+#add diagonal
+lobes <- sort(unique(c(df$Lobe1, df$Lobe2)))
+diag_df <- tibble(
+  Lobe1 = lobes,
+  Lobe2 = lobes,
+  Odds_Ratio = 1,
+  Comparison = paste0(Lobe1, " vs ", Lobe2)
+)
+
+#combine original, reciprocal, and diagonal data
+df_full <- bind_rows(
+  df %>% select(Comparison, Odds_Ratio, Lobe1, Lobe2),
+  recip_df,
+  diag_df
+)
+
+#plot heatmap
+ggplot(df_full, aes(x = Lobe1, y = Lobe2, fill = Odds_Ratio)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "white", high = "red", na.value = "grey90") +
+  coord_fixed() +
+  theme_minimal(base_size = 14) +
+  labs(
+    title = "Lobe-wise Odds Ratios - Tree-in-bud (NPO 2|3)",
+    x = "Reference Lobe",
+    y = "Compared Lobe",
+    fill = "Odds Ratio"
+  )
+
+```
