@@ -114,14 +114,13 @@ pairwise_npo <- function(clmm_fit,
     if (nm %in% coef_n) {
       list(est = b[nm],
            var = V[nm,nm],
-           cov = function(other) V[nm, other]
+           cov = function(other) V[nm, other])
     } else {
       list(est = 0,
            var = 0,
            cov = function(other) 0)
     }
   }
-
   comps <- combn(lobes, 2, simplify = FALSE)
 
   out <- purrr::map_dfr(thresholds, function(thr) {

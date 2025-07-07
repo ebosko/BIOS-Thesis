@@ -9,15 +9,19 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, echo=F}
 library(table1)
 library(kableExtra)
 library(readxl)
+library(tidyverse)
+library(stringr)
+library(purrr)
+library(knitr)
 ```
 
 ## Table 1
 
-```{r}
+```{r, echo=F}
 demo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/species.xlsx', sheet='JW')
 demo$CharacterJW <- factor(demo$Code, 
                            levels = 1:4,
@@ -30,4 +34,346 @@ demo$Sex <- factor(demo$Sex,
 mytable1 <- table1(~Age + Sex | CharacterJW, data=demo)
 
 mytable1
+```
+
+## Lobewise Comparison Tables
+
+```{r, echo=F}
+folder <- "C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/Reports/Lobewise Comparisons/ResultsFinal"
+```
+
+### Atelectasis
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "atel.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Bronchiectasis
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "bronch.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Consolidation
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "cons.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Ground-Glass Opacities
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "ggo.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Large Nodules
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "ln.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Thick-Wall Cavities
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "thick.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Thin-Wall Cavities
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "thin.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+### Tree-in-bud
+
+```{r, echo=F, results='asis'}
+feature_file <- file.path(folder, "tib.xlsx")
+
+sheets_to_use <- excel_sheets(feature_file)
+
+walk(sheets_to_use, function(sh) {
+  df <- read_excel(feature_file, sheet=sh) %>%
+    transmute(
+      Comparison,
+      OR = Odds_Ratio,
+      OR_low = OR_LowerCI,
+      OR_high = OR_UpperCI,
+      p = p,
+      FDR_p = FDR_p) %>%
+    arrange(FDR_p) %>%
+    mutate(
+      across(c(OR, OR_low, OR_high), ~round(.,2)),
+      p = case_when(
+        p < 0.0001 ~ '<0.0001',
+        p < 0.01 ~ as.character(signif(p,1)),
+        TRUE ~ sprintf('%.2f', p)),
+      FDR_p = case_when(
+        FDR_p < 0.0001 ~ '<0.0001',
+        FDR_p < 0.01 ~ as.character(signif(FDR_p, 1)),
+        TRUE ~ sprintf('%.2f', FDR_p)))
+    
+  cat(as.character(
+    df %>%
+      kable('latex', escape=F,
+            col.names = c('Comparison', 'OR', 'Lower CI', 'Upper CI', 'p', 'FDR-adjusted p'))
+  ), sep='\n')
+})
+```
+
+## AIC
+
+```{r, echo=F}
+aic_path <- file.path(folder, 'AIC.xlsx')
+
+aic_df <- read_excel(aic_path)
+
+aic_df %>%
+  arrange(Feature, Model) %>%
+  kable('latex', booktabs = T, linesep='',
+        col.names = c('Feature', 'Model', 'AIC')) %>%
+  collapse_rows(columns=1, valign='top')
+```
+
+## Interrater Reliability
+
+### ICC
+
+```{r, echo = F}
+irr_path <- file.path(folder, 'IRR.xlsx')
+
+icc_df <- read_excel(irr_path, sheet = 'ICC')
+
+icc_df %>%
+  mutate(
+    ICC_Formatted = sprintf('%.2f (%.2f, %.2f)', ICC, CI_Lower, CI_Upper)
+  ) %>%
+  select(Feature, ICC_Formatted) %>%
+  kable('latex', booktabs = T, col.names = c('Feature', 'ICC (95% CI)'))
+```
+
+### Kappa
+
+```{r, echo = F}
+kappa_df <- read_excel(irr_path, sheet = 'Kappa')
+
+kappa_df %>%
+  mutate(
+    unweighted_kappa = sprintf('%.2f (%.2f, %.2f)', unweighted, unweighted_lower, unweighted_upper),
+    weighted_kappa = case_when(
+      is.na(weighted) | is.na(weighted_lower) | is.na(weighted_upper) ~ '-',
+      T ~ sprintf('%.2f (%.2f, %.2f)', weighted, weighted_lower, weighted_upper)
+    )
+  ) %>%
+  select(Feature, `Unweighted K (95% CI)` = unweighted_kappa, `Weighted K (95% CI)` = weighted_kappa) %>%
+  kable('latex', booktabs = T, longtable=T, align = 'lcc')
 ```

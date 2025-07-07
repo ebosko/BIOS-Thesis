@@ -140,7 +140,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Tree-in-bud)",
+  labs(title = "Lobe-to-lobe Odds Ratios – PO Models (Tree-in-bud)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -167,7 +167,7 @@ plot_NPO <- plot_df %>%
   scale_x_log10(breaks = c(.25, .5, 1, 2, 4, 8, 16, 32, 64),
                 limits = c(.2, max(plot_df$OR_high) * 1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .30), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – NPO cut-points (Tree-in-bud)",
+  labs(title = "Lobe-to-lobe Odds Ratios – NPO Cut-Points (Tree-in-bud)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() +
@@ -202,19 +202,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Reduced"
+          sh == "PO_main"    ~ "Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Reduced"),
+      levels = c("Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Reduced")) %>%
+  filter(slice %in% c("Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -228,7 +228,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Large Nodules)",
+  labs(title = "Lobe-to-lobe Odds Ratios – Reduced Model (Large Nodules)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -259,20 +259,20 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Full",
-          sh == "PO_reduced" ~ "PO Reduced"
+          sh == "PO_main"    ~ "Full",
+          sh == "PO_reduced" ~ "Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice,
-      levels = c("PO Full","PO Reduced")),
+      levels = c("Full","Reduced")),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Full","PO Reduced")) %>%
+  filter(slice %in% c("Full","Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -286,7 +286,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Ground-Glass Opacities)",
+  labs(title = "Lobe-to-lobe Odds Ratios – Full & Reduced Models (Ground-Glass Opacity)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -344,7 +344,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Consolidation)",
+  labs(title = "Lobe-to-lobe Odds Ratios – PO Models (Consolidation)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -405,7 +405,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8,16,32),
                 limits = c(.2, 33)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO models (Bronchiectasis)",
+  labs(title = "Lobe-to-lobe Odds Ratios – PO Models (Bronchiectasis)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -432,7 +432,7 @@ plot_NPO <- plot_df %>%
   scale_x_log10(breaks = c(.25, .5, 1, 2, 4, 8, 16, 32, 64, 128),
                 limits = c(.2, max(plot_df$OR_high) * 1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .30), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – NPO cut-points (Bronchiectasis)",
+  labs(title = "Lobe-to-lobe Odds Ratios – NPO Cut-Points (Bronchiectasis)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() +
@@ -493,7 +493,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16, 32),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Atelectasis)",
+  labs(title = "Lobe-to-lobe Odds Ratios – PO Model (Atelectasis)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -524,19 +524,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Reduced"
+          sh == "PO_main"    ~ "Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Reduced"),
+      levels = c("Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Reduced")) %>%
+  filter(slice %in% c("Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -550,7 +550,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Thin Wall Cavity)",
+  labs(title = "Lobe-to-lobe Odds Ratios – Reduced Model (Thin Wall Cavity)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",
@@ -581,19 +581,19 @@ plot_df <- excel_sheets(feature_file) %>%
         OR_high = OR_UpperCI,
         FDR_p   = FDR_p,
         slice   = case_when(
-          sh == "PO_main"    ~ "PO Reduced"
+          sh == "PO_main"    ~ "Reduced"
         )
       )
   }) %>%
   mutate(
     slice = factor(slice),
-      levels = c("PO Reduced"),
+      levels = c("Reduced"),
     sig   = FDR_p < 0.05
   )
 
 #PO-only figure
 plot_PO <- plot_df %>%
-  filter(slice %in% c("PO Reduced")) %>%
+  filter(slice %in% c("Reduced")) %>%
   ggplot(aes(x = OR,
              y = factor(Comparison, levels = rev(unique(Comparison))),
              colour = slice,
@@ -607,7 +607,7 @@ plot_PO <- plot_df %>%
   scale_x_log10(breaks = c(.25,.5,1,2,4,8, 16, 32, 64, 128),
                 limits = c(.2, max(plot_df$OR_high)*1.05)) +
   scale_alpha_manual(values = c(`TRUE` = 1, `FALSE` = .35), guide = "none") +
-  labs(title = "Lobe-to-lobe Odds Ratios – PO model (Thick Wall Cavity)",
+  labs(title = "Lobe-to-lobe Odds Ratios – Reduced Model (Thick Wall Cavity)",
        x = "Odds Ratio", y = NULL,
        colour = NULL, shape = NULL) +
   theme_bw() + theme(legend.position = "bottom",

@@ -18,10 +18,6 @@ library(brant)
 library(emmeans)
 ```
 
-## Purpose
-
-This file will be used for exploratory analysis: evaluating the spread and distribution of the data, checking proportional odds assumption of simple models without random effects, generating summary statistics of demographic data
-
 ## Reading in Data
 
 ```{r, warning=F, message=F}
