@@ -377,3 +377,37 @@ kappa_df %>%
   select(Feature, `Unweighted K (95% CI)` = unweighted_kappa, `Weighted K (95% CI)` = weighted_kappa) %>%
   kable('latex', booktabs = T, longtable=T, align = 'lcc')
 ```
+
+### Both
+
+```{r, echo = FALSE}
+library(readxl)
+library(dplyr)
+library(knitr)
+
+irr_path <- file.path(folder, "IRR.xlsx")
+
+icc_df   <- read_excel(irr_path, sheet = "ICC")   # Feature, ICC, CI_Lower, CI_Upper
+kappa_df <- read_excel(irr_path, sheet = "Kappa") # Feature, unweighted, … weighted …
+
+irr_tbl <- 
+  full_join(kappa_df, icc_df, by = "Feature") %>%          # combine the two sheets
+  mutate(
+    ICC_fmt = ifelse(is.na(ICC),
+                     "-", 
+                     sprintf("%.2f (%.2f, %.2f)", ICC, CI_Lower, CI_Upper)),
+
+    UW_fmt  = sprintf("%.2f (%.2f, %.2f)",
+                      unweighted, unweighted_lower, unweighted_upper),
+
+    Wt_fmt  = ifelse(is.na(weighted) | is.na(weighted_lower) | is.na(weighted_upper),
+                     "-",
+                     sprintf("%.2f (%.2f, %.2f)", weighted, weighted_lower, weighted_upper))
+  ) %>% 
+  select(Feature,
+         `ICC (95% CI)`            = ICC_fmt,
+         `Unweighted K (95% CI)`   = UW_fmt,
+         `Weighted K (95% CI)`     = Wt_fmt)
+
+kable(irr_tbl, format = "latex", booktabs = TRUE,
+      longtable = TRUE, align = "lccc")
