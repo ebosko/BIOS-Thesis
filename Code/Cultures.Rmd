@@ -1,0 +1,267 @@
+---
+title: "Cultures"
+author: "Edward Bosko"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(readxl)
+library(ggplot2)
+library(table1)
+```
+
+## Reading in Data
+
+```{r, warning=F, message=F}
+#read in data
+tib <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "tib.long")
+
+ggo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "ggo.long")
+
+cons <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "cons.long")
+
+bronch <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "bronch.long")
+
+atel <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "atel.long")
+
+ln <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "ln.long")
+
+thin <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "thin.long")
+
+thick <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "thick.long")
+```
+
+## Visualize the Distribution of Scores
+
+### Tree-in-bud
+
+```{r}
+score_colors_new <- c(
+  "3" = "#E34A33",  # Orange-Red for Score 3
+  "2" = "#3B9142",  # Green for Score 2
+  "1" = "#5EC9C2",  # Light Blue for Score 1
+  "0" = "white"   # white for Score 0
+)
+
+plots <- tib %>%
+  mutate(
+    score = factor(score, levels = c(3,2,1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      scale_fill_manual(values = score_colors_new, name = "Rating") +
+      labs(title = paste("Tree-in-bud Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+
+```
+
+### Large Nodules
+
+```{r}
+plots <- ln %>%
+  mutate(
+    score = factor(score, levels = c(1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      labs(title = paste("Large Nodule Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+
+```
+
+### Ground-glass Opacities
+
+```{r}
+plots <- ggo %>%
+  mutate(
+    score = factor(score, levels = c(3,2,1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      scale_fill_manual(values = score_colors_new, name = "Rating") +
+      labs(title = paste("Ground-glass Opacity Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+```
+
+### Consolidation
+
+```{r}
+plots <- cons %>%
+  mutate(
+    score = factor(score, levels = c(3,2,1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      scale_fill_manual(values = score_colors_new, name = "Rating") +
+      labs(title = paste("Consolidation Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+```
+
+### Bronchiectasis
+
+```{r}
+plots <- bronch %>%
+  mutate(
+    score = factor(score, levels = c(3,2,1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      scale_fill_manual(values = score_colors_new, name = "Rating") +
+      labs(title = paste("Bronchiectasis Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+```
+
+### Atelectasis
+
+```{r}
+plots <- atel %>%
+  mutate(
+    score = factor(score, levels = c(3,2,1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      scale_fill_manual(values = score_colors_new, name = "Rating") +
+      labs(title = paste("Atelectasis Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+```
+
+### Thin Wall Cavity
+
+```{r}
+plots <- thin %>%
+  mutate(
+    score = factor(score, levels = c(1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      labs(title = paste("Thin Wall Cavity Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+
+```
+
+### Thick Wall Cavity
+
+```{r}
+plots <- thick %>%
+  mutate(
+    score = factor(score, levels = c(1,0)),
+    lobe  = factor(lobe,  levels = c("RUL","RML","RLL","LUS","LLS","LLL")),
+    pathcode = factor(pathcode, levels = 1:4,
+                      labels = c("MAC","MAB","MAC + MAB","Other"))
+  ) %>%
+  split(.$pathcode) %>%
+  lapply(function(df) {
+    ggplot(df, aes(x = lobe, fill = score)) +
+      geom_bar(position = "stack", color = "black") +
+      labs(title = paste("Thick Wall Cavity Distribution by Lobe -", unique(df$pathcode)),
+           x = "Lobe", y = "Count") +
+      theme_minimal()
+  })
+
+# Print
+plots[[1]]; plots[[2]]; plots[[3]]; plots[[4]]
+
+```
+
+## Demo
+
+```{r}
+#read in dataset
+demo <- read_excel('C:/Users/Eddie/OneDrive/Desktop/BIOSTAT/Thesis/Thesis/DataProcessed/Cultures.xlsx', sheet = "demo")
+```
+
+```{r}
+#add labels
+demo$Sex <- factor(
+  demo$Sex,
+  levels = c('F','M'),
+  labels = c("Female", "Male")
+)
+
+demo$pathcode <- factor(
+  demo$pathcode,
+  levels = c(1,2,3,4),
+  labels = c("MAC", "MAB","MAC + MAB","Other")
+)
+
+#create descriptive table using table1
+table1(~ Age + Sex | pathcode, data = demo,
+       caption = "Table 1: Descriptive Statistics by Pathogen")
+
+```
