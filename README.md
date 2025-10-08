@@ -14,11 +14,11 @@ To account for the complex correlation structure from repeated ratings across mu
 Key findings of our research suggest that atelectasis and bronchiectasis were most severe in the RML and LLS; consolidation in the RML and RUL; ground-glass opacities and nodules in the RLL, RUL, and LLL; thick wall cavities in the RUL and RLL; tree-in-bud opacities in the RLL and LLL; while thin wall cavities had no significant differences in lobar severity. These results confirm preferential involvement of lung regions with NTM-LD which can focus surveillance on the most affected regions and inform treatment recommendations.
 
 Key Skills Demonstrated:
-*Statistical Modeling (GLMM, Ordinal Logistic Regression)
-*R Programming (tidyverse, ggplot2, Shiny)
-*SAS Programming (PROC GLIMMIX)
-*Data Cleaning
-*Reproducible Research
+* Statistical Modeling (GLMM, Ordinal Logistic Regression)
+* R Programming (tidyverse, ggplot2, Shiny)
+* SAS Programming (PROC GLIMMIX)
+* Data Cleaning
+* Reproducible Research
 
 Directory structure:
 
