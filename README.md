@@ -1,6 +1,7 @@
 # Master's Thesis in Biostatistics
 
 **PI: Edward Chan, MD; National Jewish Health, Denver, CO**
+
 **Analyst: Edward Bosko; University of Colorado, Anschutz Medical Campus, Aurora, CO**
 
 This is the repository for my Thesis project, involving the study of Non-Tuberculous Mycobacteria Lung Disease (NTM-LD) in a cohort of 166 subjects. Our research questions of interest were as follows:
